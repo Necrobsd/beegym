@@ -22,17 +22,13 @@ def my_handler(sender, instance, **kwargs):
 
 
 class Subscribers(models.Model):
-    chat_id = models.IntegerField(
-        unique=True,
-        verbose_name='Идентификатор пользователя')
-    name = models.CharField(
-        max_length=100,
-        null=True, blank=True,
-        verbose_name='Имя пользователя')
-    subscribing_status = models.CharField(
-        max_length=5,
-        verbose_name='В процессе подписки',
-        blank=True, null=True)
+    chat_id = models.IntegerField(unique=True,
+                                  verbose_name='Идентификатор пользователя')
+    name = models.CharField(max_length=100, null=True, blank=True,
+                            verbose_name='Имя пользователя')
+    subscribing_status = models.CharField(max_length=5,
+                                          verbose_name='В процессе подписки',
+                                          blank=True, null=True)
 
     class Meta:
         verbose_name = 'подписчик'
@@ -43,21 +39,16 @@ class Subscribers(models.Model):
 
 
 class Groups(models.Model):
-    name = models.CharField(
-        unique=True,
-        verbose_name='Название группы',
-        max_length=100)
-    description = models.TextField(
-        max_length=255,
-        verbose_name='Описание группы',
-        null=True, blank=True)
-    timetable = models.TextField(
-        verbose_name='Расписание занятий',
-        null=True, blank=True)
-    is_default = models.BooleanField(
-        default=False,
-        verbose_name='Группа по-умолчанию'
-    )
+    name = models.CharField(unique=True,
+                            verbose_name='Название группы',
+                            max_length=100)
+    description = models.TextField(max_length=255,
+                                   verbose_name='Описание группы',
+                                   null=True, blank=True)
+    timetable = models.TextField(verbose_name='Расписание занятий',
+                                 null=True, blank=True)
+    is_default = models.BooleanField(default=False,
+                                     verbose_name='Группа по-умолчанию')
 
     class Meta:
         verbose_name = 'группа рассылки'
@@ -76,17 +67,14 @@ class Groups(models.Model):
 
 
 class SubscribersInGroups(models.Model):
-    subscriber = models.ForeignKey(
-        Subscribers,
-        related_name='groups',
-        on_delete=models.CASCADE)
-    group = models.ForeignKey(
-        Groups,
-        related_name='subscribers',
-        on_delete=models.CASCADE)
-    subscribition_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата подписки')
+    subscriber = models.ForeignKey(Subscribers,
+                                   related_name='groups',
+                                   on_delete=models.CASCADE)
+    group = models.ForeignKey(Groups,
+                              related_name='subscribers',
+                              on_delete=models.CASCADE)
+    subscribition_date = models.DateTimeField(auto_now_add=True,
+                                              verbose_name='Дата подписки')
 
     class Meta:
         unique_together = (('subscriber', 'group'),)
@@ -95,7 +83,7 @@ class SubscribersInGroups(models.Model):
 
 
 class PhotoMessages(models.Model):
-    group = models.ForeignKey(Groups, related_name='messages',
+    group = models.ForeignKey(Groups, related_name='photo_messages',
                               verbose_name='Группа для рассылки')
     image = models.ImageField(upload_to='messages_img',
                               verbose_name='Изображение',
@@ -105,28 +93,45 @@ class PhotoMessages(models.Model):
                             help_text='Максимум 200 символов')
     created = models.DateTimeField(auto_now_add=True,
                                    verbose_name='Дата создания')
-    status = models.BooleanField(default=False, verbose_name='Отправлено', editable=False)
+    status = models.BooleanField(default=False,
+                                 verbose_name='Отправлено',
+                                 editable=False)
 
     class Meta:
-        verbose_name = 'сообщение'
-        verbose_name_plural = 'сообщения'
+        verbose_name = 'сообщение с картинкой'
+        verbose_name_plural = 'сообщения с картинкой'
 
     def __str__(self):
         return 'Сообщение {}'.format(self.pk)
 
 
 class TextMessages(models.Model):
-    group = models.ForeignKey(Groups, related_name='messages',
+    group = models.ForeignKey(Groups, related_name='text_messages',
                               verbose_name='Группа для рассылки')
     text = models.TextField(max_length=4096,
                             verbose_name='Текст сообщения')
     created = models.DateTimeField(auto_now_add=True,
                                    verbose_name='Дата создания')
-    status = models.BooleanField(default=False, verbose_name='Отправлено', editable=False)
+    status = models.BooleanField(default=False,
+                                 verbose_name='Отправлено',
+                                 editable=False)
 
     class Meta:
         verbose_name = 'текстовое сообщение'
         verbose_name_plural = 'текстовые сообщения'
 
     def __str__(self):
-        return 'Сообщение {}'.format(self.pk)
+        return 'Текстовое сообщение {}'.format(self.pk)
+
+
+class WelcomeText(models.Model):
+    text = models.TextField(
+        max_length=300,
+        verbose_name='Текст приветствия для новых подписчиков')
+
+    class Meta:
+        verbose_name = 'текст приветствия для новых подписчиков'
+        verbose_name_plural = 'текст приветствия для новых подписчиков'
+
+    def __str__(self):
+        return self.text
