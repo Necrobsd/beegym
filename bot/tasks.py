@@ -11,11 +11,10 @@ TIMEOUT = 1/25
 
 
 @app.task(bind=True, default_retry_delay=300, max_retries=5)
-def send_message(text_message_id=None, photo_message_id=None):
+def send_message(message):
     try:
         bot = DjangoTelegramBot.get_bot()
-        if photo_message_id:
-            message = PhotoMessages.objects.get(photo_message_id)
+        if message.image:
             image_url = settings.DJANGO_TELEGRAMBOT.get('WEBHOOK_SITE') + message.image.url
             print('IMAGE_URL=', image_url)
             for counter, subscriber in enumerate(message.group.subscribers.all()):
@@ -39,8 +38,7 @@ def send_message(text_message_id=None, photo_message_id=None):
                         caption=message.text)
             message.status = True
             message.save()
-        if text_message_id:
-            message = TextMessages.objects.get(text_message_id)
+        else:
             for subscriber in message.group.subscribers.all():
                 time.sleep(TIMEOUT)
                 try:
