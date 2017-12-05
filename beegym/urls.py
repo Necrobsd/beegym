@@ -17,10 +17,12 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
+from bot.views import upload_cards
 
 admin.site.site_header = 'BeeGym Телеграм-бот'
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('django_telegrambot.urls')),
+    url(r'^upload/', upload_cards)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
