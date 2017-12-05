@@ -3,9 +3,8 @@
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from django_telegrambot.apps import DjangoTelegramBot
-from . models import Groups, Subscribers, SubscribersInGroups
+from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText
 from django.core.exceptions import ObjectDoesNotExist
-import os
 import logging
 logger = logging.getLogger(__name__)
 
@@ -45,14 +44,11 @@ def start(bot, update):
             subscriber.groups.create(group=default_group)
         except ObjectDoesNotExist:
             pass
-        update.message.reply_text('Добро пожаловать! Мы подписали Вас на общую информационную рассылку'
-                                  ' об акциях и предложениях нашего клуба, Вы также можете выбрать другую'
-                                  ' интересующую Вас подписку, либо отписаться от нас.'
-                                  ' Просмотреть список всех операций вы можете отправив роботу команду:\n'
-                                  '_/help_\n'
-                                  ' Или выберите действие из предложеных ниже:',
-                                  reply_markup=main_reply_markup,
-                                  parse_mode='Markdown')
+        try:
+            welcome = WelcomeText.objects.last().text
+        except:
+            welcome = 'Добро пожаловать!'
+        update.message.reply_text(welcome, reply_markup=main_reply_markup)
 
 
 def stop(bot, update):
@@ -160,6 +156,18 @@ def help(bot, update):
     bot.sendMessage()
 
 
+def timetable(bot, update):
+    subscriber = _check_subscriber_exists(update)
+    if subscriber:
+        timetable_text = ''
+        for group in subscriber.groups.all():
+            if not group.group.is_default and group.group.timetable:
+                timetable_text += '*{}*\n_{}_\n'.format(group.group.name, group.group.timetable)
+        update.message.reply_text(timetable_text,
+                                  parse_mode='Markdown',
+                                  reply_markup=main_reply_markup)
+
+
 def text(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
@@ -174,6 +182,8 @@ def text(bot, update):
                 get_my_subscribes(bot, update)
             elif update.message.text == 'Срок действия карты':
                 card(bot, update)
+            elif update.message.text == 'Расписание занятий':
+                timetable(bot, update)
             elif update.message.text == 'Отменить все подписки и покинуть нас':
                 stop(bot, update)
             else:
@@ -242,6 +252,7 @@ def main():
     dp.add_handler(CommandHandler("delete", delete))
     dp.add_handler(CommandHandler("me", get_my_subscribes))
     dp.add_handler(CommandHandler("list", groups_list))
+    dp.add_handler(CommandHandler("timetable", timetable))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(MessageHandler(Filters.text, text))
