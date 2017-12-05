@@ -78,8 +78,7 @@ class TextMessagesAdmin(admin.ModelAdmin):
         for message in queryset:
             if not message.status:
                 self.message_user(request, '{} отправлено в очередь на рассылку'.format(message))
-                id = message.id
-                send_message.delay(text_message=id)
+                send_message.delay(text_message=message.id)
             else:
                 self.message_user(request, '{} уже было отправлено ранее'.format(message),
                                   level=messages.WARNING)
