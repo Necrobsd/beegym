@@ -11,8 +11,8 @@ app = Celery('tasks', broker='amqp://localhost')
 TIMEOUT = 1/25
 
 
-@app.task(bind=True, default_retry_delay=300, max_retries=5)
-# @app.task()
+# @app.task(bind=True, default_retry_delay=300, max_retries=5)
+@app.task()
 def send_message(text_message=None, photo_message=None):
     bot = DjangoTelegramBot.get_bot()
     if photo_message:
