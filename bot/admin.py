@@ -56,7 +56,7 @@ class PhotoMessagesAdmin(admin.ModelAdmin):
         for message in queryset:
             if not message.status:
                 self.message_user(request, '{} отправлено в очередь на рассылку'.format(message))
-                send_message.delay(photo_message=message)
+                send_message.delay(photo_message_id=message.id)
             else:
                 self.message_user(request, '{} уже было отправлено ранее'.format(message),
                                   level=messages.WARNING)
@@ -78,7 +78,7 @@ class TextMessagesAdmin(admin.ModelAdmin):
         for message in queryset:
             if not message.status:
                 self.message_user(request, '{} отправлено в очередь на рассылку'.format(message))
-                send_message.delay(photo_message=message)
+                send_message.delay(text_message_id=message.id)
             else:
                 self.message_user(request, '{} уже было отправлено ранее'.format(message),
                                   level=messages.WARNING)
