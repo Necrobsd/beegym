@@ -7,6 +7,9 @@ from pprint import pprint
 
 
 def get_stats(request):
+    if request.GET:
+        date = datetime.strptime(request.GET.get('date'), '%Y-%m')
+        print(date)
     groups = Groups.objects.all()
     series = [{'options': {'source': SubscribersStats.objects.filter(group=group)},
                'terms': [
