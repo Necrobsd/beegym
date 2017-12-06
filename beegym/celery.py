@@ -7,7 +7,7 @@ from celery.schedules import crontab
 # Основыне настройки Django для celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'beegym.settings')
 
-app = Celery('beegym')
+app = Celery('beegym', broker='amqp://localhost')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
@@ -15,7 +15,8 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'save-subscribers-statistics': {
         'task': 'bot_stat.tasks.save_stat',
-        'schedule': crontab(minute=0, hour=17),  # change to `crontab(minute=0, hour=0)` if you want it to run daily at midnight
+        'schedule': crontab(minute=0, hour=13),  # В 23-00 каждый день считаем
+                                                 #  статистику пользователей
     },
 }
 

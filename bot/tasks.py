@@ -4,10 +4,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from telegram.error import TelegramError
 from . models import TextMessages, PhotoMessages
 from django.conf import settings
+from beegym.celery import app
 import time
 
 
-app = Celery('tasks', broker='amqp://localhost')
 TIMEOUT = 1/25
 
 

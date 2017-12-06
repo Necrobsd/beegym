@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from bot.views import upload_cards
+from bot_stat.views import get_stats
 
 admin.site.site_header = 'BeeGym Телеграм-бот'
 
@@ -25,5 +26,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', admin.site.urls),
     url(r'^', include('django_telegrambot.urls')),
-    url(r'^upload/', upload_cards)
+    url(r'^upload/', upload_cards),
+    url(r'^stat/', get_stats),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -8,9 +8,13 @@ from pprint import pprint
 
 def get_stats(request):
     groups = Groups.objects.all()
-    series = [{'options': {'source': SubscribersStats.objects.filter(group=group)}, 'terms': [{'date{}'.format(group.id): 'human_date'}, {'{}'.format(group.name):'count'}]} for group in groups]
+    series = [{'options': {'source': SubscribersStats.objects.filter(group=group)},
+               'terms': [
+                   {'date{}'.format(group.id): 'human_date'},
+                   {'{}'.format(group.name): 'count'}
+               ]} for group in groups]
     terms = {'date{}'.format(group.id): ['{}'.format(group.name)] for group in groups}
-    pprint(series)
+    # pprint(series)
     # data = [SubscribersStats.objects.filter(date__lte=datetime(2017, 11, 5)]
     ds = DataPool(
         series=series
