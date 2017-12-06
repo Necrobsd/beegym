@@ -23,7 +23,7 @@ admin.site.site_header = 'BeeGym Телеграм-бот'
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^/', admin.site.urls),
+    url(r'^$', admin.site.urls),
     url(r'^', include('django_telegrambot.urls')),
     url(r'^upload/', upload_cards)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
