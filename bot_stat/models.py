@@ -3,7 +3,7 @@ from bot.models import Groups
 
 
 class SubscribersStats(models.Model):
-    date = models.DateTimeField(verbose_name='Дата')
+    date = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
     group = models.ForeignKey(Groups, related_name='stats', verbose_name='Группа')
     count = models.IntegerField(verbose_name='Число подписчиков')
 
