@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bot',
-    # 'stats',
+    'bot_stat',
     'django_telegrambot',
     'chartit',
 ]
