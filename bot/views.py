@@ -12,7 +12,7 @@ from django.contrib.auth import authenticate
 def index(request):
     bot_list = DjangoTelegramBot.bots
     context = {'bot_list': bot_list, 'update_mode':settings.DJANGO_TELEGRAMBOT['MODE']}
-    return render(request, 'bot/index.html', context)
+    return render(request, 'bot/bot_index.html', context)
 
 
 @csrf_exempt

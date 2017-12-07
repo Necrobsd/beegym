@@ -21,7 +21,7 @@ from bot.views import upload_cards
 from bot_stat.views import get_stats
 
 admin.site.site_header = 'BeeGym Телеграм-бот'
-admin.site.site_url = 'mail.ru'
+admin.site.site_url = '/stat/'
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

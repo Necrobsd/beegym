@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -6,19 +7,29 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.src.js"></script>
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/responsive.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/responsive_rtl.css' %}">
+    <link href="{% static 'beegym/style.css' %}" rel="stylesheet" type="text/css" media="all" />
     {% load chartit %}
     {{ stats|load_charts:"container" }}
 </head>
 <body>
-
-    <form action="" method="get" style="margin: 20px auto 50px auto; width: 350px">
+<div id="header">
+    <div id="branding"><h1 id="site-name">Статистика Beegym Telegram-bot</h1></div>
+    <div id="user-tools">
+        Добро пожаловать,
+        <strong>{{ user }}</strong>.
+        <a href="{% url 'admin:index' %}">Администрирование</a> /
+        <a href="{% url 'admin:logout' %}">Выйти</a>
+        </div>
+</div>
+    <form action="" method="get">
         {{ form.month.label_tag }}
         {{ form.month }}
         {{ form.year }}
         <input type="submit" value="Обновить">
     </form>
-
     <div id='container'> Chart will be rendered here </div>
 </body>
 </html>
