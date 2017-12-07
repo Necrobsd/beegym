@@ -33,11 +33,12 @@ def send_message(text_message=None, photo_message=None):
                     except TelegramError as error:
                         print(error.message)
                 else:
-                    bot.sendPhoto(
+                    response = bot.sendPhoto(
                         subscriber.subscriber.chat_id,
                         # 472186134,
                         photo=file_id if file_id else image_url,
                         caption=message.text)
+                    print(response)
             message.status = True
             message.save()
         except ObjectDoesNotExist:

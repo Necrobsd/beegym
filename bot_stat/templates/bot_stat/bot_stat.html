@@ -2,32 +2,22 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Статистика</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.src.js"></script>
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
     {% load chartit %}
     {{ stats|load_charts:"container" }}
 </head>
 <body>
-<form action="" method="get">
-    <label>Выбери дату: </label>
-    <select name="month" >
-        <option value="01">Январь</option>
-        <option value="02">Февраль</option>
-        <option value="03">Март</option>
-        <option value="04">Апрель</option>
-        <option value="05" selected>Май</option>
-    </select>
-    <select name="year" >
-        <option value="2015">2015</option>
-        <option value="2016">2016</option>
-        <option value="2017">2017</option>
-        <option value="2018">2018</option>
-        <option value="2019" selected>2019</option>
-    </select>
-    <input type="submit">
-</form>
+
+    <form action="" method="get" style="margin: 20px auto 50px auto; width: 350px">
+        {{ form.month.label_tag }}
+        {{ form.month }}
+        {{ form.year }}
+        <input type="submit" value="Обновить">
+    </form>
 
     <div id='container'> Chart will be rendered here </div>
 </body>

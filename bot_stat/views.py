@@ -1,24 +1,33 @@
 from django.shortcuts import render, render_to_response
 from chartit import DataPool, Chart
 from . models import SubscribersStats
-from datetime import datetime
+from django.contrib.auth.decorators import login_required
 from bot.models import Groups
-from pprint import pprint
+from .forms import DateForm
 
 
+@login_required(login_url='admin:login')
 def get_stats(request):
-    if request.GET:
-        date = datetime.strptime(request.GET.get('date'), '%Y-%m')
-        print(date)
+    form = DateForm()
     groups = Groups.objects.all()
     series = [{'options': {'source': SubscribersStats.objects.filter(group=group)},
                'terms': [
                    {'date{}'.format(group.id): 'human_date'},
                    {'{}'.format(group.name): 'count'}
                ]} for group in groups]
+    if request.GET:
+        form = DateForm(request.GET)
+        if form.is_valid():
+            month = form.cleaned_data['month']
+            year = form.cleaned_data['year']
+            series = [{'options': {'source': SubscribersStats.objects.filter(group=group,
+                                                                             date__year=year,
+                                                                             date__month=month)},
+                       'terms': [
+                           {'date{}'.format(group.id): 'human_date'},
+                           {'{}'.format(group.name): 'count'}
+                       ]} for group in groups]
     terms = {'date{}'.format(group.id): ['{}'.format(group.name)] for group in groups}
-    # pprint(series)
-    # data = [SubscribersStats.objects.filter(date__lte=datetime(2017, 11, 5)]
     ds = DataPool(
         series=series
         # [
@@ -44,7 +53,7 @@ def get_stats(request):
         # ]
     )
     # terms = {each['terms'][0].k: [each['terms'][1]] for each in series}
-    pprint(series[1]['terms'][0].keys())
+    # pprint(series[1]['terms'][0].keys())
     cht = Chart(
         datasource=ds,
         series_options=[
@@ -61,7 +70,7 @@ def get_stats(request):
             }],
         chart_options={
             'title': {
-                'text': 'Количество подписчиков'
+                'text': 'Статистика по подписчикам'
             },
             'xAxis': {
                 'title': {
@@ -77,4 +86,4 @@ def get_stats(request):
     )
 
     # Step 3: Send the chart object to the template.
-    return render_to_response('bot_stat/bot_stat.html', {'stats': cht})
+    return render_to_response('bot_stat/bot_stat.html', {'stats': cht, 'form': form})
