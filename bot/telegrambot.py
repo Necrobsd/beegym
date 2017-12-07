@@ -15,6 +15,7 @@ TEXT_NO_MORE_TO_SUBSCRIBE = 'Больше нет групп для подпис�
 TEXT_NO_MORE_TO_UNSUBSCRIBE = 'Больше нет групп, от которых Вы можете отписаться'
 TEXT_CANCEL_LAST_OPERATION = 'Операция завершена'
 TEXT_CANT_FIND_GROUP = 'Не могу найти данную группу'
+SAD_EMOJI = '😣'
 
 main_keyboard = [
     [KeyboardButton("Подписаться"), KeyboardButton("Отписаться")],
@@ -190,7 +191,7 @@ def text(bot, update):
             elif update.message.text == 'Отменить все подписки и покинуть нас':
                 stop(bot, update)
             else:
-                update.message.reply_text(':confused: Извините, я не знаю такой команды: ' + update.message.text)
+                update.message.reply_text(SAD_EMOJI + 'Извините, я не знаю такой команды: ' + update.message.text)
                 update.message.reply_text('Выберите действие:', reply_markup=main_reply_markup)
         else:
             if subscriber.subscribing_status == 'sub':
