@@ -148,7 +148,10 @@ def get_my_subscribes(bot, update):
         subscribes_list_text = ''
         for group_name in subscribes_list:
             subscribes_list_text += '- {}\n'.format(group_name)
-        bot.sendMessage(update.message.chat_id, text='Вы подписаны на рассылки:\n{}'.format(subscribes_list_text))
+        bot.sendMessage(update.message.chat_id,
+                        text='*Вы подписаны на рассылки:*\n'
+                             '_{}_'.format(subscribes_list_text),
+                        parse_mode='Markdown')
 
 
 def help(bot, update):
