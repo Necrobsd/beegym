@@ -191,7 +191,9 @@ def text(bot, update):
             elif update.message.text == 'Отменить все подписки и покинуть нас':
                 stop(bot, update)
             else:
-                update.message.reply_text('Извините, я не знаю такой команды: {}\n{}'.format(update.message.text, SAD_EMOJI))
+                update.message.reply_text(
+                    'Извините, я не знаю такой команды: "{}"\n{}'.format(update.message.text,
+                                                                         SAD_EMOJI))
                 update.message.reply_text('Выберите действие:', reply_markup=main_reply_markup)
         else:
             if subscriber.subscribing_status == 'sub':
