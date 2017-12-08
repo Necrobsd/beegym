@@ -19,7 +19,7 @@
     <div id="branding"><h1 id="site-name">Статистика Beegym Telegram-bot</h1></div>
     <div id="user-tools">
         Добро пожаловать,
-        <strong>{{ user }}</strong>.
+        <strong>{{ request.user }}</strong>.
         <a href="{% url 'admin:index' %}">Администрирование</a> /
         <a href="{% url 'admin:logout' %}">Выйти</a>
         </div>
