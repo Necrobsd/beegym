@@ -125,7 +125,7 @@ class TextMessages(models.Model):
 
 class WelcomeText(models.Model):
     text = models.TextField(
-        max_length=300,
+        max_length=1000,
         verbose_name='Текст приветствия для новых подписчиков')
 
     class Meta:
