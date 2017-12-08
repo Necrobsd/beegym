@@ -86,4 +86,4 @@ def get_stats(request):
     )
 
     # Step 3: Send the chart object to the template.
-    return render_to_response(request, 'bot_stat/bot_stat.html', {'stats': cht, 'form': form})
+    return render(request, 'bot_stat/bot_stat.html', {'stats': cht, 'form': form})
