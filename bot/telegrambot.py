@@ -176,8 +176,8 @@ def timetable(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
         timetable_text = ''
-        for group in subscriber.groups.all():
-            if not group.group.is_default and group.group.timetable:
+        for group in Groups.objects.exclude(is_default=True):
+            if group.group.timetable:
                 timetable_text += '*{}*\n_{}_\n'.format(group.group.name, group.group.timetable)
         if timetable_text:
             update.message.reply_text(timetable_text,
