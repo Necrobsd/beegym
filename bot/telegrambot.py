@@ -3,9 +3,13 @@
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from django_telegrambot.apps import DjangoTelegramBot
-from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText
+from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText, PhotoMessages
 from django.core.exceptions import ObjectDoesNotExist
 import logging
+from django.utils.timezone import localtime, now
+from .tasks import TIMEOUT
+import time
+
 logger = logging.getLogger(__name__)
 
 BUTTONS_IN_ROW = 2
@@ -50,6 +54,14 @@ def start(bot, update):
         except:
             welcome = 'Добро пожаловать!'
         update.message.reply_text(welcome, reply_markup=main_reply_markup)
+        # Получаем и отправляем подписчику все текущие акции
+        current_offers = PhotoMessages.objects.filter(expiration_date__gte=localtime(now()))
+        if current_offers:
+            for offer in current_offers:
+                update.message.reply_photo(photo=offer.image,
+                                           caption=offer.text,
+                                           reply_markup=main_reply_markup)
+                time.sleep(TIMEOUT)
 
 
 def stop(bot, update):

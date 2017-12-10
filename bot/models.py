@@ -90,6 +90,13 @@ class PhotoMessages(models.Model):
                               help_text='Максимальный размер - 5 Мб')
     text = models.TextField(max_length=200, verbose_name='Текст описания',
                             help_text='Максимум 200 символов')
+    expiration_date = models.DateTimeField(
+        verbose_name='Дата окончания рассылки',
+        null=True, blank=True,
+        help_text='При заполнении данного поля, сообщение будет отправляться'
+                  ' всем новым подписчикам, до указанной даты.\n Оставьте данное'
+                  ' поле пустым, если хотите запустить одноразовую рассылку уже'
+                  ' существующим подписчикам')
     created = models.DateTimeField(auto_now_add=True,
                                    verbose_name='Дата создания')
     status = models.BooleanField(default=False,
