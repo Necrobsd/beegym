@@ -87,7 +87,7 @@ class PhotoMessages(models.Model):
                               verbose_name='Группа для рассылки')
     image = models.ImageField(upload_to='messages_img',
                               verbose_name='Изображение',
-                              help_text='Максимальный размер - 5 Мб')
+                              help_text='Максимальный размер - 2 Мб')
     text = models.TextField(max_length=200, verbose_name='Текст описания',
                             help_text='Максимум 200 символов')
     expiration_date = models.DateTimeField(
