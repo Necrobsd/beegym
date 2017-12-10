@@ -58,10 +58,10 @@ def start(bot, update):
         current_offers = PhotoMessages.objects.filter(expiration_date__gte=localtime(now()))
         if current_offers:
             for offer in current_offers:
+                time.sleep(TIMEOUT)
                 update.message.reply_photo(photo=offer.image,
                                            caption=offer.text,
                                            reply_markup=main_reply_markup)
-                time.sleep(TIMEOUT)
 
 
 def stop(bot, update):
@@ -179,9 +179,14 @@ def timetable(bot, update):
         for group in subscriber.groups.all():
             if not group.group.is_default and group.group.timetable:
                 timetable_text += '*{}*\n_{}_\n'.format(group.group.name, group.group.timetable)
-        update.message.reply_text(timetable_text,
-                                  parse_mode='Markdown',
-                                  reply_markup=main_reply_markup)
+        if timetable_text:
+            update.message.reply_text(timetable_text,
+                                      parse_mode='Markdown',
+                                      reply_markup=main_reply_markup)
+        else:
+            update.message.reply_text('На данный момент расписание недоступно.',
+                                      parse_mode='Markdown',
+                                      reply_markup=main_reply_markup)
 
 
 def text(bot, update):
