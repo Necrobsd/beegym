@@ -31,5 +31,24 @@
         <input type="submit" value="Обновить">
     </form>
     <div id='container'> Chart will be rendered here </div>
+    <div id="subscribers-table">
+        <h2>Подписчики</h2>
+        <table>
+            <thead>
+                <th>№</th>
+                <th>telegram-id</th>
+                <th>Имя</th>
+            </thead>
+            <tbody>
+            {% for s in subscribers %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ s.chat_id }}</td>
+                    <td>{{ s.name }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

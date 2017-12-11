@@ -3,3 +3,9 @@ form {
     max-width: 370px;
     margin: 15px auto;
 }
+#subscribers-table table{
+    margin: 0 auto;
+}
+#subscribers-table h2 {
+    text-align: center;
+}
