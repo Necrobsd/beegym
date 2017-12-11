@@ -3,9 +3,13 @@
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from django_telegrambot.apps import DjangoTelegramBot
-from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText
+from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText, PhotoMessages
 from django.core.exceptions import ObjectDoesNotExist
 import logging
+from django.utils.timezone import localtime, now
+from .tasks import TIMEOUT
+import time
+
 logger = logging.getLogger(__name__)
 
 BUTTONS_IN_ROW = 2
@@ -50,6 +54,14 @@ def start(bot, update):
         except:
             welcome = 'Добро пожаловать!'
         update.message.reply_text(welcome, reply_markup=main_reply_markup)
+        # Получаем и отправляем подписчику все текущие акции
+        current_offers = PhotoMessages.objects.filter(expiration_date__gte=localtime(now()))
+        if current_offers:
+            for offer in current_offers:
+                time.sleep(TIMEOUT)
+                update.message.reply_photo(photo=offer.image,
+                                           caption=offer.text,
+                                           reply_markup=main_reply_markup)
 
 
 def stop(bot, update):
@@ -164,12 +176,17 @@ def timetable(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
         timetable_text = ''
-        for group in subscriber.groups.all():
-            if not group.group.is_default and group.group.timetable:
-                timetable_text += '*{}*\n_{}_\n'.format(group.group.name, group.group.timetable)
-        update.message.reply_text(timetable_text,
-                                  parse_mode='Markdown',
-                                  reply_markup=main_reply_markup)
+        for group in Groups.objects.exclude(is_default=True):
+            if group.timetable:
+                timetable_text += '*{}*\n_{}_\n'.format(group.name, group.timetable)
+        if timetable_text:
+            update.message.reply_text(timetable_text,
+                                      parse_mode='Markdown',
+                                      reply_markup=main_reply_markup)
+        else:
+            update.message.reply_text('На данный момент расписание недоступно.',
+                                      parse_mode='Markdown',
+                                      reply_markup=main_reply_markup)
 
 
 def text(bot, update):

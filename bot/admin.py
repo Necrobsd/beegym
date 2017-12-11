@@ -38,7 +38,7 @@ class GroupsAdmin(admin.ModelAdmin):
 @admin.register(PhotoMessages)
 class PhotoMessagesAdmin(admin.ModelAdmin):
     list_display = ('get_id', 'group', 'image_tag', 'text', 'created', 'status')
-    fields = ('group', ('image', 'image_tag'), 'text')
+    fields = ('group', ('image', 'image_tag'), 'text', 'expiration_date')
     readonly_fields = ('image_tag',)
     actions = ['send_messages']
     list_display_links = ('get_id', 'group')
