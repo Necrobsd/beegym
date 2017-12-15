@@ -62,6 +62,8 @@ def start(bot, update):
                 update.message.reply_photo(photo=offer.image,
                                            caption=offer.text,
                                            reply_markup=main_reply_markup)
+        time.sleep(TIMEOUT)
+        bot.sendMessage(472186134, 'Новый подписчик: {}'.format(name))
 
 
 def stop(bot, update):
