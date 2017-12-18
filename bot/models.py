@@ -42,8 +42,7 @@ class Groups(models.Model):
     name = models.CharField(unique=True,
                             verbose_name='Название группы',
                             max_length=100)
-    description = models.TextField(max_length=255,
-                                   verbose_name='Описание группы',
+    description = models.TextField(verbose_name='Описание группы',
                                    null=True, blank=True)
     timetable = models.TextField(verbose_name='Расписание занятий',
                                  null=True, blank=True)
