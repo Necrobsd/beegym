@@ -6,7 +6,7 @@ from django_telegrambot.apps import DjangoTelegramBot
 from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText, PhotoMessages
 from django.core.exceptions import ObjectDoesNotExist
 import logging
-from django.utils.timezone import localtime, now
+from django.utils.timezone import localtime, now, timedelta
 from .tasks import TIMEOUT
 import time
 from django.contrib.auth import authenticate
@@ -277,9 +277,10 @@ def text(bot, update):
                     update.message.reply_text('Введен неверный логин или пароль')
                 else:
                     subscriber.subscribing_status = None
+                    subscriber.exp_date_staff = localtime(now() + timedelta(1))
                     subscriber.save()
                     update.message.reply_text('Вы успешно вошли в статусе персонала, и '
-                                              'можете создавать текстовые рассылки в группы '
+                                              'можете создавать текстовые рассылки '
                                               'с помощью кнопки "Новая рассылка"')
 
 
