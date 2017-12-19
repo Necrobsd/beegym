@@ -9,6 +9,7 @@ import logging
 from django.utils.timezone import localtime, now
 from .tasks import TIMEOUT
 import time
+from django.contrib.auth import authenticate
 
 logger = logging.getLogger(__name__)
 
@@ -191,6 +192,18 @@ def timetable(bot, update):
                                       reply_markup=main_reply_markup)
 
 
+def login(bot, update):
+    subscriber = _check_subscriber_exists(update)
+    if subscriber:
+        if subscriber.exp_date_staff and subscriber.exp_date_staff > localtime(now()):
+            update.message.reply_text('Вы уже вошли как персонал и можете отправлять '
+                                      'сообщения с помощью кнопки "Новая рассылка"')
+        else:
+            subscriber.subscribing_status = 'staff'
+            subscriber.save()
+            update.message.reply_text('Введите Ваш логин и пароль через пробел')
+
+
 def text(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
@@ -235,7 +248,7 @@ def text(bot, update):
                 else:
                     update.message.reply_text(TEXT_CANT_FIND_GROUP + ': ' + update.message.text)
                     add(bot, update)
-            if subscriber.subscribing_status == 'unsub':
+            elif subscriber.subscribing_status == 'unsub':
                 if update.message.text in _get_groups_for_unsibscribe(update):
                     obj = SubscribersInGroups.objects.get(subscriber=subscriber,
                                                           group=Groups.objects.get(name=update.message.text))
@@ -255,6 +268,20 @@ def text(bot, update):
                 else:
                     update.message.reply_text(TEXT_CANT_FIND_GROUP + ': ' + update.message.text)
                     delete(bot, update)
+            elif subscriber.subscribing_status == 'staff':
+                user_login, user_pass = update.message.text.split(' ')
+                user = authenticate(username=user_login, password=user_pass)
+                if not user:
+                    subscriber.subscribing_status = None
+                    subscriber.save()
+                    update.message.reply_text('Введен неверный логин или пароль')
+                else:
+                    subscriber.subscribing_status = None
+                    subscriber.save()
+                    update.message.reply_text('Вы успешно вошли в статусе персонала, и '
+                                              'можете создавать текстовые рассылки в группы '
+                                              'с помощью кнопки "Новая рассылка"')
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))

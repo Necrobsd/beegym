@@ -29,6 +29,8 @@ class Subscribers(models.Model):
     subscribing_status = models.CharField(max_length=5,
                                           verbose_name='В процессе подписки',
                                           blank=True, null=True)
+    exp_date_staff = models.DateTimeField(
+        verbose_name='Дата истечения полномочий админа', blank=True, null=True)
 
     class Meta:
         verbose_name = 'подписчик'
