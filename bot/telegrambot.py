@@ -268,6 +268,7 @@ def get_mailing_text(bot, update):
                 reply_markup=reply_markup)
             subscriber.subscribing_status = 'get_mailing_text'
             subscriber.save()
+            print(MAILING_GROUP)
         else:
             update.message.reply_text(
                 'У Вас нет доступа. Пожалуйста, авторизуйтесь, используя команду: /login',
