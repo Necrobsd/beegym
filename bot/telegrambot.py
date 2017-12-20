@@ -259,7 +259,7 @@ def get_mailing_text(bot, update):
         if _is_staff(subscriber):
             MAILING_GROUP[update.message.chat_id] = update.message.text
             update.message.reply_text('Наберите текст рассылки и отправьте, '
-                                      'или отправьте пустое сообщение для отмены')
+                                      'или нажмите "Отмена')
             subscriber.subscribing_status = 'get_mailing_text'
             subscriber.save()
         else:
