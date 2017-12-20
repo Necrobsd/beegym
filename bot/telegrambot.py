@@ -284,21 +284,21 @@ def send_mailing(bot, update):
             if group_name:
                 try:
                     group = Groups.objects.get(name=group_name)
-                    if update.message.text != 'Отмена':
+                    if update.message.text == 'Отмена':
+                        update.message.reply_text(
+                            TEXT_CANCEL_LAST_OPERATION,
+                            reply_markup=staff_reply_markup)
+                    else:
                         message = TextMessages.objects.create(group=group, text=update.message.text)
                         update.message.reply_text(
                             'Сообщение отправлено в очередь на рассылку',
                             reply_markup=staff_reply_markup)
                         send_message.delay(text_message=message.id)
-                    else:
-                        del MAILING_GROUP[update.message.chat_id]
-                        update.message.reply_text(
-                            TEXT_CANCEL_LAST_OPERATION,
-                            reply_markup=staff_reply_markup)
                 except ObjectDoesNotExist:
                     update.message.reply_text(
                         'Ошибка: группа не существует, возможно ее удалили',
                         reply_markup=staff_reply_markup)
+                del MAILING_GROUP[update.message.chat_id]
             else:
                 update.message.reply_text(
                     'Ошибка: группа не была выбрана',
