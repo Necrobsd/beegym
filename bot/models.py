@@ -26,7 +26,7 @@ class Subscribers(models.Model):
                                   verbose_name='Идентификатор пользователя')
     name = models.CharField(max_length=100, null=True, blank=True,
                             verbose_name='Имя пользователя')
-    subscribing_status = models.CharField(max_length=5,
+    subscribing_status = models.CharField(max_length=20,
                                           verbose_name='В процессе подписки',
                                           blank=True, null=True)
     exp_date_staff = models.DateTimeField(

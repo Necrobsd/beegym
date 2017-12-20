@@ -49,12 +49,12 @@ def send_message(self, text_message=None, photo_message=None):
             try:
                 message = TextMessages.objects.get(id=text_message)
                 text = '*{}*\n_{}_'.format(message.group.name, message.text)
-                for subscriber in message.group.subscribers.all():
+                for subscriber in message.group.subscribers.all()[:3]:
                     time.sleep(TIMEOUT)
                     try:
                         response = bot.sendMessage(
-                            subscriber.subscriber.chat_id,
-                            # 472186134,
+                            # subscriber.subscriber.chat_id,
+                            472186134,
                             text, parse_mode='Markdown')
                         print(response)
                     except TelegramError as error:

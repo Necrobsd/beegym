@@ -3,13 +3,14 @@
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from django_telegrambot.apps import DjangoTelegramBot
-from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText, PhotoMessages
+from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText, PhotoMessages, TextMessages
 from django.core.exceptions import ObjectDoesNotExist
 import logging
 from django.utils.timezone import localtime, now, timedelta
 from .tasks import TIMEOUT
 import time
 from django.contrib.auth import authenticate
+from . tasks import send_message
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,11 @@ TEXT_NO_MORE_TO_UNSUBSCRIBE = 'Больше нет групп, от которы
 TEXT_CANCEL_LAST_OPERATION = 'Операция завершена'
 TEXT_CANT_FIND_GROUP = 'Не могу найти данную группу'
 SAD_EMOJI = '😣'
+TEXT_STAFF_LOGIN_SUCCESS = 'Вы успешно вошли, и можете создавать ' \
+                           'текстовые рассылки с помощью кнопки "Новая рассылка".'
+TEXT_STAFF_LOGIN_ERROR = 'В доступе отказано: введен неверный логин или пароль.'
+
+MAILING_GROUP = {}
 
 main_keyboard = [
     [KeyboardButton("Подписаться"), KeyboardButton("Отписаться")],
@@ -30,7 +36,17 @@ main_keyboard = [
     [KeyboardButton("Отменить все подписки и покинуть нас")]
 ]
 
+staff_keyboard = [
+    [KeyboardButton("Новая рассылка")],
+    [KeyboardButton("Подписаться"), KeyboardButton("Отписаться")],
+    [KeyboardButton("Список групп для подписки")],
+    [KeyboardButton("Мои подписки")],
+    [KeyboardButton("Расписание занятий")],
+    [KeyboardButton("Отменить все подписки и покинуть нас")]
+]
+
 main_reply_markup = ReplyKeyboardMarkup(main_keyboard)
+staff_reply_markup = ReplyKeyboardMarkup(staff_keyboard)
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
@@ -87,6 +103,10 @@ def _check_subscriber_exists(update):
         return None
 
 
+def _is_staff(subscriber):
+    return subscriber.exp_date_staff and subscriber.exp_date_staff > localtime(now())
+
+
 def _get_groups_for_subscribe(update):
     subscriber = Subscribers.objects.get(chat_id=update.message.chat_id)
     current_groups_ids = [group.group.id for group in subscriber.groups.all()]
@@ -115,7 +135,9 @@ def add(bot, update):
         else:
             subscriber.subscribing_status = None
             subscriber.save()
-            update.message.reply_text(TEXT_NO_MORE_TO_SUBSCRIBE, reply_markup=main_reply_markup)
+            update.message.reply_text(
+                TEXT_NO_MORE_TO_SUBSCRIBE,
+                reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
 
 
 def delete(bot, update):
@@ -133,16 +155,19 @@ def delete(bot, update):
         else:
             subscriber.subscribing_status = None
             subscriber.save()
-            update.message.reply_text(TEXT_NO_MORE_TO_UNSUBSCRIBE, reply_markup=main_reply_markup)
+            update.message.reply_text(
+                TEXT_NO_MORE_TO_UNSUBSCRIBE,
+                reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
 
 
 def card(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
-        update.message.reply_text('*Ваша карта действительна до:*\n'
-                                  '_31 января 2018г._',
-                                  parse_mode='Markdown',
-                                  reply_markup=main_reply_markup)
+        update.message.reply_text(
+            '*Ваша карта действительна до:*\n'
+            '_31 января 2018г._',
+            parse_mode='Markdown',
+            reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
 
 
 def groups_list(bot, update):
@@ -152,9 +177,10 @@ def groups_list(bot, update):
         groups_text = '*Список групп для подписки:*\n'
         for count, group in enumerate(groups, 1):
             groups_text += '_{}. {} - {}_\n'.format(count, group.name, group.description)
-        update.message.reply_text(groups_text,
-                                  parse_mode='Markdown',
-                                  reply_markup=main_reply_markup)
+        update.message.reply_text(
+            groups_text,
+            parse_mode='Markdown',
+            reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
 
 
 def get_my_subscribes(bot, update):
@@ -164,10 +190,12 @@ def get_my_subscribes(bot, update):
         subscribes_list_text = ''
         for group_name in subscribes_list:
             subscribes_list_text += '- {}\n'.format(group_name)
-        bot.sendMessage(update.message.chat_id,
-                        text='*Вы подписаны на рассылки:*\n'
-                             '_{}_'.format(subscribes_list_text),
-                        parse_mode='Markdown')
+        update.message.reply_text(
+            '*Вы подписаны на рассылки:*\n'
+            '_{}_'.format(subscribes_list_text),
+            parse_mode='Markdown',
+            reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup
+        )
 
 
 def help(bot, update):
@@ -183,25 +211,92 @@ def timetable(bot, update):
             if group.timetable:
                 timetable_text += '*{}*\n_{}_\n'.format(group.name, group.timetable)
         if timetable_text:
-            update.message.reply_text(timetable_text,
-                                      parse_mode='Markdown',
-                                      reply_markup=main_reply_markup)
+            update.message.reply_text(
+                timetable_text,
+                parse_mode='Markdown',
+                reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
         else:
-            update.message.reply_text('На данный момент расписание недоступно.',
-                                      parse_mode='Markdown',
-                                      reply_markup=main_reply_markup)
+            update.message.reply_text(
+                'На данный момент расписание недоступно.',
+                parse_mode='Markdown',
+                reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
 
 
 def login(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
-        if subscriber.exp_date_staff and subscriber.exp_date_staff > localtime(now()):
-            update.message.reply_text('Вы уже вошли как персонал и можете отправлять '
-                                      'сообщения с помощью кнопки "Новая рассылка"')
+        if _is_staff(subscriber):
+            update.message.reply_text(TEXT_STAFF_LOGIN_SUCCESS,
+                                      reply_markup=staff_reply_markup)
         else:
-            subscriber.subscribing_status = 'staff'
+            subscriber.subscribing_status = 'login'
             subscriber.save()
             update.message.reply_text('Введите Ваш логин и пароль через пробел')
+
+
+def get_mailing_group(bot, update):
+    subscriber = _check_subscriber_exists(update)
+    if subscriber:
+        if _is_staff(subscriber):
+            groups = Groups.objects.all()
+            buttons = [KeyboardButton(group_name) for group_name in groups]
+            keyboard = [buttons[d:d + BUTTONS_IN_ROW] for d in range(0, len(buttons), BUTTONS_IN_ROW)]
+            keyboard.append([KeyboardButton('Отмена')])
+            reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+            update.message.reply_text('Выберите группу для рассылки:', reply_markup=reply_markup)
+            subscriber.subscribing_status = 'get_mailing_group'
+            subscriber.save()
+        else:
+            update.message.reply_text(
+                'У Вас нет доступа. Пожалуйста, авторизуйтесь, используя команду: _/login_',
+                parse_mode='Markdown',
+                reply_markup=main_reply_markup)
+
+
+def get_mailing_text(bot, update):
+    subscriber = _check_subscriber_exists(update)
+    if subscriber:
+        if _is_staff(subscriber):
+            MAILING_GROUP[update.message.chat_id] = update.message.text
+            update.message.reply_text('Наберите текст рассылки и отправьте, '
+                                      'или отправьте пустое сообщение для отмены')
+            subscriber.subscribing_status = 'get_mailing_text'
+            subscriber.save()
+        else:
+            update.message.reply_text(
+                'У Вас нет доступа. Пожалуйста, авторизуйтесь, используя команду: /login',
+                reply_markup=main_reply_markup)
+
+
+def send_mailing(bot, update):
+    subscriber = _check_subscriber_exists(update)
+    if subscriber:
+        subscriber.subscribing_status = None
+        subscriber.save()
+        if _is_staff(subscriber):
+            group_name = MAILING_GROUP.get(update.message.chat_id, None)
+            if group_name:
+                try:
+                    group = Groups.objects.get(name=group_name)
+                    if update.message.text:
+                        message = TextMessages.objects.create(group=group, text=update.message.text)
+                        update.message.reply_text(
+                            'Сообщение отправлено в очередь на рассылку',
+                            reply_markup=staff_reply_markup)
+                        send_message.delay(text_message=message.id)
+                    else:
+                        del MAILING_GROUP[update.message.chat_id]
+                        update.message.reply_text(
+                            TEXT_CANCEL_LAST_OPERATION,
+                            reply_markup=staff_reply_markup)
+                except ObjectDoesNotExist:
+                    update.message.reply_text(
+                        'Ошибка: группа не существует, возможно ее удалили',
+                        reply_markup=staff_reply_markup)
+            else:
+                update.message.reply_text(
+                    'Ошибка: группа не была выбрана',
+                    reply_markup=staff_reply_markup)
 
 
 def text(bot, update):
@@ -222,6 +317,8 @@ def text(bot, update):
                 timetable(bot, update)
             elif update.message.text == 'Отменить все подписки и покинуть нас':
                 stop(bot, update)
+            elif update.message.text == 'Новая рассылка':
+                get_mailing_group(bot, update)
             else:
                 update.message.reply_text(
                     'Извините, я не знаю такой команды: "{}"\n{}'.format(update.message.text,
@@ -244,7 +341,9 @@ def text(bot, update):
                 elif update.message.text == 'Отмена':
                     subscriber.subscribing_status = None
                     subscriber.save()
-                    update.message.reply_text(TEXT_CANCEL_LAST_OPERATION, reply_markup=main_reply_markup)
+                    update.message.reply_text(
+                        TEXT_CANCEL_LAST_OPERATION,
+                        reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
                 else:
                     update.message.reply_text(TEXT_CANT_FIND_GROUP + ': ' + update.message.text)
                     add(bot, update)
@@ -264,24 +363,37 @@ def text(bot, update):
                 elif update.message.text == 'Отмена':
                     subscriber.subscribing_status = None
                     subscriber.save()
-                    update.message.reply_text(TEXT_CANCEL_LAST_OPERATION, reply_markup=main_reply_markup)
+                    update.message.reply_text(
+                        TEXT_CANCEL_LAST_OPERATION,
+                        reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
                 else:
                     update.message.reply_text(TEXT_CANT_FIND_GROUP + ': ' + update.message.text)
                     delete(bot, update)
-            elif subscriber.subscribing_status == 'staff':
+            elif subscriber.subscribing_status == 'login':
                 user_login, user_pass = update.message.text.split(' ')
-                user = authenticate(username=user_login, password=user_pass)
-                if not user:
-                    subscriber.subscribing_status = None
-                    subscriber.save()
-                    update.message.reply_text('Введен неверный логин или пароль')
+                staff_user = authenticate(username=user_login, password=user_pass)
+                subscriber.subscribing_status = None
+                if not staff_user:
+                    update.message.reply_text(TEXT_STAFF_LOGIN_ERROR, reply_markup=main_reply_markup)
                 else:
-                    subscriber.subscribing_status = None
                     subscriber.exp_date_staff = localtime(now() + timedelta(1))
+                    update.message.reply_text(TEXT_STAFF_LOGIN_SUCCESS, reply_markup=staff_reply_markup)
+                subscriber.save()
+            elif subscriber.subscribing_status == 'get_mailing_group':
+                if update.message.text in [group.name for group in Groups.objects.all()]:
+                    get_mailing_text(bot, update)
+                elif update.message.text == 'Отмена':
+                    subscriber.subscribing_status = None
                     subscriber.save()
-                    update.message.reply_text('Вы успешно вошли в статусе персонала, и '
-                                              'можете создавать текстовые рассылки '
-                                              'с помощью кнопки "Новая рассылка"')
+                    update.message.reply_text(
+                        TEXT_CANCEL_LAST_OPERATION,
+                        reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+                else:
+                    update.message.reply_text(TEXT_CANT_FIND_GROUP + ': ' + update.message.text)
+                    get_mailing_group(bot, update)
+            elif subscriber.subscribing_status == 'get_mailing_text':
+                send_mailing(bot, update)
+
 
 
 def error(bot, update, error):
