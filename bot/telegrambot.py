@@ -281,10 +281,12 @@ def send_mailing(bot, update):
         subscriber.save()
         if _is_staff(subscriber):
             group_name = MAILING_GROUP.get(update.message.chat_id, None)
+            print(group_name)
             if group_name:
                 try:
                     group = Groups.objects.get(name=group_name)
                     if update.message.text == "Отмена":
+                        print('ОТМЕНА')
                         update.message.reply_text(
                             TEXT_CANCEL_LAST_OPERATION,
                             reply_markup=staff_reply_markup)
