@@ -265,7 +265,7 @@ def get_mailing_text(bot, update):
             update.message.reply_text(
                 'Наберите текст рассылки и отправьте, '
                 'или нажмите "Отмена"',
-                reply_markup=reply_markup)
+                reply_markup=reply_markup, resize_keyboard=False)
             subscriber.subscribing_status = 'get_mailing_text'
             subscriber.save()
         else:
