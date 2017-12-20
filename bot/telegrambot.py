@@ -258,8 +258,14 @@ def get_mailing_text(bot, update):
     if subscriber:
         if _is_staff(subscriber):
             MAILING_GROUP[update.message.chat_id] = update.message.text
-            update.message.reply_text('Наберите текст рассылки и отправьте, '
-                                      'или нажмите "Отмена')
+            keyboard = [
+                [KeyboardButton("Отмена")]
+            ]
+            reply_markup = ReplyKeyboardMarkup(keyboard)
+            update.message.reply_text(
+                'Наберите текст рассылки и отправьте, '
+                'или нажмите "Отмена"',
+                reply_markup=reply_markup)
             subscriber.subscribing_status = 'get_mailing_text'
             subscriber.save()
         else:
