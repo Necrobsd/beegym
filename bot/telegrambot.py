@@ -257,7 +257,7 @@ def get_mailing_text(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
         if _is_staff(subscriber):
-            MAILING_GROUP[update.message.chat_id] = update.message.text
+            subscriber.mailing_group = update.message.text
             keyboard = [
                 [KeyboardButton("Отмена")]
             ]
@@ -268,7 +268,6 @@ def get_mailing_text(bot, update):
                 reply_markup=reply_markup)
             subscriber.subscribing_status = 'get_mailing_text'
             subscriber.save()
-            print(MAILING_GROUP)
         else:
             update.message.reply_text(
                 'У Вас нет доступа. Пожалуйста, авторизуйтесь, используя команду: /login',
@@ -279,10 +278,8 @@ def send_mailing(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
         subscriber.subscribing_status = None
-        subscriber.save()
         if _is_staff(subscriber):
-            group_name = MAILING_GROUP.get(update.message.chat_id, None)
-            print(MAILING_GROUP)
+            group_name = subscriber.mailing_group
             print(group_name)
             if group_name:
                 try:
@@ -302,7 +299,8 @@ def send_mailing(bot, update):
                     update.message.reply_text(
                         'Ошибка: группа не существует, возможно ее удалили',
                         reply_markup=staff_reply_markup)
-                del MAILING_GROUP[update.message.chat_id]
+                subscriber.mailing_group = None
+                subscriber.save()
             else:
                 update.message.reply_text(
                     'Ошибка: группа не была выбрана',

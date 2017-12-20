@@ -27,10 +27,13 @@ class Subscribers(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True,
                             verbose_name='Имя пользователя')
     subscribing_status = models.CharField(max_length=20,
-                                          verbose_name='В процессе подписки',
+                                          verbose_name='Статус',
                                           blank=True, null=True)
     exp_date_staff = models.DateTimeField(
         verbose_name='Дата истечения полномочий админа', blank=True, null=True)
+    mailing_group = models.TextField(max_length=100,
+                                     verbose_name='Группа для создания рассылки',
+                                     blank=True, null=True)
 
     class Meta:
         verbose_name = 'подписчик'
