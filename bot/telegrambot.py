@@ -238,7 +238,7 @@ def get_mailing_group(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
         if _is_staff(subscriber):
-            groups = Groups.objects.all()
+            groups = [group.name for group in Groups.objects.all()]
             buttons = [KeyboardButton(group_name) for group_name in groups]
             keyboard = [buttons[d:d + BUTTONS_IN_ROW] for d in range(0, len(buttons), BUTTONS_IN_ROW)]
             keyboard.append([KeyboardButton('Отмена')])
