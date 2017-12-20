@@ -284,7 +284,7 @@ def send_mailing(bot, update):
             if group_name:
                 try:
                     group = Groups.objects.get(name=group_name)
-                    if update.message.text == 'Отмена':
+                    if update.message.text == "Отмена":
                         update.message.reply_text(
                             TEXT_CANCEL_LAST_OPERATION,
                             reply_markup=staff_reply_markup)
