@@ -281,6 +281,7 @@ def send_mailing(bot, update):
         subscriber.save()
         if _is_staff(subscriber):
             group_name = MAILING_GROUP.get(update.message.chat_id, None)
+            print(MAILING_GROUP)
             print(group_name)
             if group_name:
                 try:
