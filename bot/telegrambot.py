@@ -418,6 +418,7 @@ def main():
     dp.add_handler(CommandHandler("me", get_my_subscribes))
     dp.add_handler(CommandHandler("list", groups_list))
     dp.add_handler(CommandHandler("timetable", timetable))
+    dp.add_handler(CommandHandler("login", login))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(MessageHandler(Filters.text, text))
