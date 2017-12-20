@@ -265,7 +265,7 @@ def get_mailing_text(bot, update):
             update.message.reply_text(
                 'Наберите текст рассылки и отправьте, '
                 'или нажмите "Отмена"',
-                reply_markup=reply_markup, resize_keyboard=True)
+                reply_markup=reply_markup)
             subscriber.subscribing_status = 'get_mailing_text'
             subscriber.save()
         else:
@@ -284,7 +284,7 @@ def send_mailing(bot, update):
             if group_name:
                 try:
                     group = Groups.objects.get(name=group_name)
-                    if update.message.text:
+                    if update.message.text != 'Отмена':
                         message = TextMessages.objects.create(group=group, text=update.message.text)
                         update.message.reply_text(
                             'Сообщение отправлено в очередь на рассылку',
