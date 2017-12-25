@@ -384,16 +384,21 @@ def text(bot, update):
                     update.message.reply_text(TEXT_CANT_FIND_GROUP + ': ' + update.message.text)
                     delete(bot, update)
             elif subscriber.subscribing_status == 'login':
-                try:
-                    user_login, user_pass = update.message.text.split(' ')
-                    staff_user = authenticate(username=user_login, password=user_pass)
-                    if not staff_user:
+                if update.message.text != 'Отмена':
+                    try:
+                        user_login, user_pass = update.message.text.split(' ')
+                        staff_user = authenticate(username=user_login, password=user_pass)
+                        if not staff_user:
+                            update.message.reply_text(TEXT_STAFF_LOGIN_ERROR, reply_markup=main_reply_markup)
+                        else:
+                            subscriber.exp_date_staff = localtime(now() + timedelta(1))
+                            update.message.reply_text(TEXT_STAFF_LOGIN_SUCCESS, reply_markup=staff_reply_markup)
+                    except ValueError:
                         update.message.reply_text(TEXT_STAFF_LOGIN_ERROR, reply_markup=main_reply_markup)
-                    else:
-                        subscriber.exp_date_staff = localtime(now() + timedelta(1))
-                        update.message.reply_text(TEXT_STAFF_LOGIN_SUCCESS, reply_markup=staff_reply_markup)
-                except ValueError:
-                    update.message.reply_text(TEXT_STAFF_LOGIN_ERROR, reply_markup=main_reply_markup)
+                else:
+                    update.message.reply_text(
+                        TEXT_CANCEL_LAST_OPERATION,
+                        reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
                 subscriber.subscribing_status = None
                 subscriber.save()
             elif subscriber.subscribing_status == 'get_mailing_group':
