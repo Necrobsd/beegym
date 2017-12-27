@@ -45,6 +45,11 @@ staff_keyboard = [
     [KeyboardButton("Отменить все подписки и покинуть нас")]
 ]
 
+cancel_keyboard = [
+    [KeyboardButton("Отмена")]
+]
+
+cancel_reply_markup = ReplyKeyboardMarkup(cancel_keyboard)
 main_reply_markup = ReplyKeyboardMarkup(main_keyboard)
 staff_reply_markup = ReplyKeyboardMarkup(staff_keyboard)
 
@@ -231,13 +236,9 @@ def login(bot, update):
         else:
             subscriber.subscribing_status = 'login'
             subscriber.save()
-            keyboard = [
-                [KeyboardButton("Отмена")]
-            ]
-            reply_markup = ReplyKeyboardMarkup(keyboard)
             update.message.reply_text('Введите Ваш логин и пароль через пробел, '
                                       'или нажмите Отмена',
-                                      reply_markup=reply_markup)
+                                      reply_markup=cancel_reply_markup)
 
 
 def get_mailing_group(bot, update):
@@ -264,14 +265,10 @@ def get_mailing_text(bot, update):
     if subscriber:
         if _is_staff(subscriber):
             subscriber.mailing_group = update.message.text
-            keyboard = [
-                [KeyboardButton("Отмена")]
-            ]
-            reply_markup = ReplyKeyboardMarkup(keyboard)
             update.message.reply_text(
                 'Наберите текст рассылки и отправьте, '
                 'или нажмите "Отмена"',
-                reply_markup=reply_markup)
+                reply_markup=cancel_reply_markup)
             subscriber.subscribing_status = 'get_mailing_text'
             subscriber.save()
         else:
