@@ -3,14 +3,16 @@ from chartit import DataPool, Chart
 from . models import SubscribersStats
 from django.contrib.auth.decorators import login_required
 from bot.models import Groups, Subscribers
-from .forms import DateForm
+from .forms import DateForm, current_month, current_year
 
 
 @login_required(login_url='admin:login')
 def get_stats(request):
     form = DateForm()
     groups = Groups.objects.all()
-    series = [{'options': {'source': SubscribersStats.objects.filter(group=group)},
+    series = [{'options': {'source': SubscribersStats.objects.filter(group=group,
+                                                                     date__year=current_year,
+                                                                     date__month=current_month)},
                'terms': [
                    {'date{}'.format(group.id): 'human_date'},
                    {'{}'.format(group.name): 'count'}
