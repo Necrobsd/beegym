@@ -97,7 +97,6 @@ def stop(bot, update):
     update.message.reply_text('*Спасибо что были с нами!*\n'
                               'Все Ваши подписки удалены.\n'
                               'До новых встреч!', parse_mode='Markdown', reply_markup=ReplyKeyboardRemove())
-    botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def _check_subscriber_exists(update):
@@ -147,7 +146,6 @@ def add(bot, update):
             update.message.reply_text(
                 TEXT_NO_MORE_TO_SUBSCRIBE,
                 reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
-        botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def delete(bot, update):
@@ -168,7 +166,6 @@ def delete(bot, update):
             update.message.reply_text(
                 TEXT_NO_MORE_TO_UNSUBSCRIBE,
                 reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
-        botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def card(bot, update):
@@ -179,7 +176,6 @@ def card(bot, update):
             '_31 января 2018г._',
             parse_mode='Markdown',
             reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
-        botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def groups_list(bot, update):
@@ -193,7 +189,6 @@ def groups_list(bot, update):
             groups_text,
             parse_mode='Markdown',
             reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
-        botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def get_my_subscribes(bot, update):
@@ -209,7 +204,6 @@ def get_my_subscribes(bot, update):
             parse_mode='Markdown',
             reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup
         )
-        botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def help(bot, update):
@@ -234,7 +228,6 @@ def timetable(bot, update):
                 'На данный момент расписание недоступно.',
                 parse_mode='Markdown',
                 reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
-        botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def login(bot, update):
@@ -327,20 +320,28 @@ def text(bot, update):
         if not subscriber.subscribing_status:
             if update.message.text == 'Подписаться':
                 add(bot, update)
+                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Отписаться':
                 delete(bot, update)
+                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Список групп для подписки':
                 groups_list(bot, update)
+                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Мои подписки':
                 get_my_subscribes(bot, update)
+                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Срок действия карты':
                 card(bot, update)
+                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Расписание занятий':
                 timetable(bot, update)
+                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Отменить все подписки и покинуть нас':
                 stop(bot, update)
+                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Новая рассылка':
                 get_mailing_group(bot, update)
+                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             else:
                 update.message.reply_text(
                     'Извините, я не знаю такой команды: "{}"\n{}'.format(update.message.text,
