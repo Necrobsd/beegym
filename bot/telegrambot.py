@@ -11,6 +11,8 @@ from .tasks import TIMEOUT
 import time
 from django.contrib.auth import authenticate
 from . tasks import send_message
+from beegym.local_settings import BOTAN_TOKEN
+from bot import botan
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +88,7 @@ def start(bot, update):
                                            reply_markup=main_reply_markup)
         time.sleep(TIMEOUT)
         bot.sendMessage(472186134, 'Новый подписчик: {}'.format(name))
+        botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def stop(bot, update):
