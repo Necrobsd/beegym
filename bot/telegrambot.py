@@ -88,7 +88,7 @@ def start(bot, update):
                                            reply_markup=main_reply_markup)
         time.sleep(TIMEOUT)
         bot.sendMessage(472186134, 'Новый подписчик: {}'.format(name))
-        print(botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text))
+        botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def stop(bot, update):
