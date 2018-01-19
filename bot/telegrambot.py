@@ -11,8 +11,6 @@ from .tasks import TIMEOUT
 import time
 from django.contrib.auth import authenticate
 from . tasks import send_message
-from beegym.local_settings import BOTAN_TOKEN
-from bot import botan
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +86,6 @@ def start(bot, update):
                                            reply_markup=main_reply_markup)
         time.sleep(TIMEOUT)
         bot.sendMessage(472186134, 'Новый подписчик: {}'.format(name))
-        botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def stop(bot, update):
@@ -242,7 +239,6 @@ def login(bot, update):
             update.message.reply_text('Введите Ваш логин и пароль через пробел, '
                                       'или нажмите Отмена',
                                       reply_markup=cancel_reply_markup)
-        botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
 
 
 def get_mailing_group(bot, update):
@@ -320,28 +316,20 @@ def text(bot, update):
         if not subscriber.subscribing_status:
             if update.message.text == 'Подписаться':
                 add(bot, update)
-                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Отписаться':
                 delete(bot, update)
-                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Список групп для подписки':
                 groups_list(bot, update)
-                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Мои подписки':
                 get_my_subscribes(bot, update)
-                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Срок действия карты':
                 card(bot, update)
-                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Расписание занятий':
                 timetable(bot, update)
-                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Отменить все подписки и покинуть нас':
                 stop(bot, update)
-                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             elif update.message.text == 'Новая рассылка':
                 get_mailing_group(bot, update)
-                botan.track(BOTAN_TOKEN, update.message.chat_id, update.message.to_dict(), update.message.text)
             else:
                 update.message.reply_text(
                     'Извините, я не знаю такой команды: "{}"\n{}'.format(update.message.text,
