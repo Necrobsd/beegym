@@ -16,7 +16,7 @@ def upload_cards(request):
             data = base64.b64decode(auth[1])
             username, password = data.decode().split(":")
             user = authenticate(username=username, password=password)
-            if user and user.is_active():
+            if user and user.is_active:
                 print('Пользователь успешно вошел:', user)
                 print('Список переданных файлов: ', request.FILES)
                 try:
