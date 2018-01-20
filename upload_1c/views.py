@@ -13,9 +13,12 @@ def upload_cards(request):
     if "HTTP_AUTHORIZATION" in request.META:
         auth = request.META["HTTP_AUTHORIZATION"].split()
         if len(auth) == 2 and auth[0].lower() == "basic":
-            data = base64.b64decode(auth[1])
-            username, password = data.decode().split(":")
-            user = authenticate(username=username, password=password)
+            try:
+                data = base64.b64decode(auth[1])
+                username, password = data.decode().split(":")
+                user = authenticate(username=username, password=password)
+            except:
+                pass
             if user and user.is_active:
                 print('Пользователь успешно вошел:', user)
                 print('Список переданных файлов: ', request.FILES)
