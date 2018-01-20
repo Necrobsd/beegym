@@ -26,8 +26,8 @@ def upload_cards(request):
                     file = request.FILES['file']
                     path = default_storage.save(str(file), ContentFile(file.read()))
                     return HttpResponse('ok')
-                except KeyError:
-                    HttpResponse('You should send JSON file with key "file" (For example: file=my_file.json')
+                except (KeyError, ValueError):
+                    return HttpResponse('You should send JSON file with key "file" (For example: file=my_file.json)')
 
     # Если не авторизовали — даем ответ с 401, требуем авторизоваться
     if user is None or not user.is_active:
