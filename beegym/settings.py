@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'bot_stat',
     'django_telegrambot',
     'chartit',
+    'upload_1c',
 ]
 
 MIDDLEWARE = [

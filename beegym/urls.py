@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
-from bot.views import upload_cards
+from upload_1c.views import upload_cards
 from bot_stat.views import get_stats
 
 admin.site.site_header = 'BeeGym Телеграм-бот'
