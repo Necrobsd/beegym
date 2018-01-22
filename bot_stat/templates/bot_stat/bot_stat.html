@@ -1,4 +1,5 @@
 {% load static %}
+{% load get_count_of_used_functions %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -32,12 +33,19 @@
     </form>
     <div id='container'> Chart will be rendered here </div>
     <div id="subscribers-table">
-        <h2>Подписчики</h2>
+        <h2>Использование функций бота подписчиками</h2>
         <table>
             <thead>
                 <th>№</th>
                 <th>telegram-id</th>
                 <th>Имя</th>
+                <th>Start</th>
+                <th>Подписаться</th>
+                <th>Отписаться</th>
+                <th>Срок действия абонемента</th>
+                <th>Список групп для подписки</th>
+                <th>Мои подписки</th>
+                <th>Расписание</th>
             </thead>
             <tbody>
             {% for s in subscribers %}
@@ -45,6 +53,13 @@
                     <td>{{ forloop.counter }}</td>
                     <td>{{ s.chat_id }}</td>
                     <td>{{ s.name }}</td>
+                    <td>{{ s.used_functions|get_count:"start" }}</td>
+                    <td>{{ s.used_functions|get_count:"Подписаться" }}</td>
+                    <td>{{ s.used_functions|get_count:"Отписаться" }}</td>
+                    <td>{{ s.used_functions|get_count:"Срок действия абонемента" }}</td>
+                    <td>{{ s.used_functions|get_count:"Список групп для подписки" }}</td>
+                    <td>{{ s.used_functions|get_count:"Мои подписки" }}</td>
+                    <td>{{ s.used_functions|get_count:"Расписание" }}</td>
                 </tr>
             {% endfor %}
             </tbody>

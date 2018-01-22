@@ -1,6 +1,6 @@
 from django.shortcuts import render, render_to_response
 from chartit import DataPool, Chart
-from . models import SubscribersStats
+from . models import SubscribersStats, UsedFunctions
 from django.contrib.auth.decorators import login_required
 from bot.models import Groups, Subscribers
 from .forms import DateForm, current_month, current_year
@@ -88,7 +88,6 @@ def get_stats(request):
     )
 
     subscribers = Subscribers.objects.all()
-    # Step 3: Send the chart object to the template.
     return render(request, 'bot_stat/bot_stat.html', {'stats': cht,
                                                       'form': form,
                                                       'subscribers': subscribers})
