@@ -1,5 +1,6 @@
 from django.db import models
 from bot.models import Groups
+from bot.models import Subscribers
 
 
 class SubscribersStats(models.Model):
@@ -13,3 +14,14 @@ class SubscribersStats(models.Model):
 
     def human_date(self):
         return '{}'.format(self.date.strftime('%d.%m.%Y'))
+
+
+class UsedFunctions(models.Model):
+    month = models.PositiveSmallIntegerField(verbose_name='Месяц', db_index=True)
+    year = models.PositiveSmallIntegerField(verbose_name='Год', db_index=True)
+    subscriber = models.ForeignKey(Subscribers,
+                                   related_name='used_functions',
+                                   on_delete=models.CASCADE,
+                                   db_index=True)
+    function = models.CharField(max_length=50, db_index=True)
+    count = models.IntegerField(verbose_name='Количество вызовов', default=0)

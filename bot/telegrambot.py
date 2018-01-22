@@ -12,6 +12,7 @@ from .tasks import TIMEOUT
 import time
 from django.contrib.auth import authenticate
 from . tasks import send_message
+from bot_stat.models import UsedFunctions
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,15 @@ staff_reply_markup = ReplyKeyboardMarkup(staff_keyboard)
 # update. Error handlers also receive the raised TelegramError object in error.
 
 
+def _save_stat_used_functions(subscriber, function):
+    month, year = localtime(now()).month, localtime(now()).year
+    used_function, created = UsedFunctions.objects.get_or_create(
+        month=month, year=year, subscriber=subscriber, function=function
+    )
+    used_function.count += 1
+    used_function.save()
+
+
 def start(bot, update):
     try:
         subscriber = Subscribers.objects.get(chat_id=update.message.chat_id)
@@ -90,6 +100,7 @@ def start(bot, update):
                                            reply_markup=main_reply_markup)
         time.sleep(TIMEOUT)
         bot.sendMessage(472186134, 'Новый подписчик: {}'.format(name))
+    _save_stat_used_functions(subscriber=subscriber, function='start')
 
 
 def stop(bot, update):
@@ -147,6 +158,7 @@ def add(bot, update):
             update.message.reply_text(
                 TEXT_NO_MORE_TO_SUBSCRIBE,
                 reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+        _save_stat_used_functions(subscriber=subscriber, function='Подписаться')
 
 
 def delete(bot, update):
@@ -167,6 +179,7 @@ def delete(bot, update):
             update.message.reply_text(
                 TEXT_NO_MORE_TO_UNSUBSCRIBE,
                 reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+        _save_stat_used_functions(subscriber=subscriber, function='Отписаться')
 
 
 def card(bot, update):
@@ -178,6 +191,7 @@ def card(bot, update):
             reply_markup=cancel_reply_markup)
         subscriber.subscribing_status = 'card_expire'
         subscriber.save()
+        _save_stat_used_functions(subscriber=subscriber, function='Срок действия абонемента')
 
 
 def groups_list(bot, update):
@@ -191,6 +205,7 @@ def groups_list(bot, update):
             groups_text,
             parse_mode='Markdown',
             reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+        _save_stat_used_functions(subscriber=subscriber, function='Список групп для подписки')
 
 
 def get_my_subscribes(bot, update):
@@ -206,6 +221,7 @@ def get_my_subscribes(bot, update):
             parse_mode='Markdown',
             reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup
         )
+        _save_stat_used_functions(subscriber=subscriber, function='Мои подписки')
 
 
 def help(bot, update):
@@ -230,6 +246,7 @@ def timetable(bot, update):
                 'На данный момент расписание недоступно.',
                 parse_mode='Markdown',
                 reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+        _save_stat_used_functions(subscriber=subscriber, function='Расписание')
 
 
 def login(bot, update):
