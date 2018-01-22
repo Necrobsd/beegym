@@ -421,12 +421,16 @@ def text(bot, update):
                         client_card = Cards.objects.get(card_number=update.message.text)
                         if not client_card.is_active:
                             update.message.reply_text(
-                                '*{}*\nСтатус: Не активирован'.format(client_card.name)
+                                '*{}*\nСтатус: Не активирован'.format(client_card.name),
+                                parse_mode='Markdown',
+                                reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup
                             )
                         else:
                             update.message.reply_text(
                                 '*{}*\nДействует до: {}'.format(client_card.name,
-                                                                client_card.exp_date)
+                                                                client_card.exp_date),
+                                parse_mode='Markdown',
+                                reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup
                             )
                     except ObjectDoesNotExist:
                         update.message.reply_text(
