@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import default_storage
 from .models import Cards
 import os
+from chardet.universaldetector import UniversalDetector
 
 
 # @app.task()
@@ -11,7 +12,14 @@ def load_to_db(filename):
     file = os.path.join(default_storage.location, filename)
     if os.path.exists(file) and os.path.isfile(file):
         print('Получен файл = ', file)
-        with open(file, 'r', encoding='cp1251') as f:
+        detector = UniversalDetector()
+        detector.reset()
+        for line in open(file, 'rb'):
+            detector.feed(line)
+            if detector.done: break
+        detector.close()
+        enc = detector.result['encoding']
+        with open(file, 'r', encoding=enc) as f:
             data = json.load(f)
             for card_number, values in data.items():
                 if values['name']:
