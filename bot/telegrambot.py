@@ -438,6 +438,8 @@ def text(bot, update):
                             parse_mode='Markdown',
                             reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup
                         )
+                    subscriber.subscribing_status = None
+                    subscriber.save()
 
 
 def error(bot, update, error):
