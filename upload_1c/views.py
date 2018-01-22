@@ -4,6 +4,7 @@ import base64
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib.auth import authenticate
+from .tasks import load_to_db
 
 
 # Create your views here.
@@ -24,7 +25,8 @@ def upload_cards(request):
                 print('Список переданных файлов: ', request.FILES)
                 try:
                     file = request.FILES['file']
-                    path = default_storage.save(str(file), ContentFile(file.read()))
+                    filename = default_storage.save(str(file), ContentFile(file.read()))
+                    load_to_db(filename)
                     return HttpResponse('ok')
                 except (KeyError, ValueError):
                     return HttpResponse('You should send JSON file with key "file" (For example: file=my_file.json)')

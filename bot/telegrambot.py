@@ -4,6 +4,7 @@ from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from django_telegrambot.apps import DjangoTelegramBot
 from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText, PhotoMessages, TextMessages
+from upload_1c.models import Cards
 from django.core.exceptions import ObjectDoesNotExist
 import logging
 from django.utils.timezone import localtime, now, timedelta
@@ -25,6 +26,9 @@ SAD_EMOJI = '😣'
 TEXT_STAFF_LOGIN_SUCCESS = 'Вы успешно вошли, и можете создавать ' \
                            'текстовые рассылки с помощью кнопки "Новая рассылка".'
 TEXT_STAFF_LOGIN_ERROR = 'В доступе отказано: введен неверный логин или пароль.'
+TEXT_CARD_NOT_FOUND = '*Карта с номером {} не найдена.*\n'\
+                      '_Если Вы приобрели абонемент недавно, '\
+                      'попробуйте повторить запрос позже_'
 
 MAILING_GROUP = {}
 
@@ -169,10 +173,11 @@ def card(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
         update.message.reply_text(
-            '*Ваша карта действительна до:*\n'
-            '_31 января 2018г._',
+            'Введите номер Вашей карты или нажмите Отмена',
             parse_mode='Markdown',
-            reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+            reply_markup=cancel_reply_markup)
+        subscriber.subscribing_status = 'card_expire'
+        subscriber.save()
 
 
 def groups_list(bot, update):
@@ -310,6 +315,14 @@ def send_mailing(bot, update):
                     reply_markup=staff_reply_markup)
 
 
+def cancel_last_operation(update, subscriber):
+    subscriber.subscribing_status = None
+    subscriber.save()
+    update.message.reply_text(
+        TEXT_CANCEL_LAST_OPERATION,
+        reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+
+
 def text(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
@@ -322,7 +335,7 @@ def text(bot, update):
                 groups_list(bot, update)
             elif update.message.text == 'Мои подписки':
                 get_my_subscribes(bot, update)
-            elif update.message.text == 'Срок действия карты':
+            elif update.message.text == 'Срок действия абонемента':
                 card(bot, update)
             elif update.message.text == 'Расписание занятий':
                 timetable(bot, update)
@@ -350,11 +363,7 @@ def text(bot, update):
                                               parse_mode='Markdown', reply_markup=main_reply_markup)
                     add(bot, update)
                 elif update.message.text == 'Отмена':
-                    subscriber.subscribing_status = None
-                    subscriber.save()
-                    update.message.reply_text(
-                        TEXT_CANCEL_LAST_OPERATION,
-                        reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+                    cancel_last_operation(update, subscriber)
                 else:
                     update.message.reply_text(TEXT_CANT_FIND_GROUP + ': ' + update.message.text)
                     add(bot, update)
@@ -372,11 +381,7 @@ def text(bot, update):
                                               parse_mode='Markdown')
                     delete(bot, update)
                 elif update.message.text == 'Отмена':
-                    subscriber.subscribing_status = None
-                    subscriber.save()
-                    update.message.reply_text(
-                        TEXT_CANCEL_LAST_OPERATION,
-                        reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+                    cancel_last_operation(update, subscriber)
                 else:
                     update.message.reply_text(TEXT_CANT_FIND_GROUP + ': ' + update.message.text)
                     delete(bot, update)
@@ -402,17 +407,33 @@ def text(bot, update):
                 if update.message.text in [group.name for group in Groups.objects.all()]:
                     get_mailing_text(bot, update)
                 elif update.message.text == 'Отмена':
-                    subscriber.subscribing_status = None
-                    subscriber.save()
-                    update.message.reply_text(
-                        TEXT_CANCEL_LAST_OPERATION,
-                        reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+                    cancel_last_operation(update, subscriber)
                 else:
                     update.message.reply_text(TEXT_CANT_FIND_GROUP + ': ' + update.message.text)
                     get_mailing_group(bot, update)
             elif subscriber.subscribing_status == 'get_mailing_text':
                 send_mailing(bot, update)
-
+            elif subscriber.subscribing_status == 'card_expire':
+                if update.message.text == 'Отмена':
+                    cancel_last_operation(update, subscriber)
+                else:
+                    try:
+                        client_card = Cards.objects.get(card_number=update.message.text)
+                        if not client_card.is_active:
+                            update.message.reply_text(
+                                '*{}*\nСтатус: Не активирован'.format(client_card.name)
+                            )
+                        else:
+                            update.message.reply_text(
+                                '*{}*\nДействует до: {}'.format(client_card.name,
+                                                                client_card.exp_date)
+                            )
+                    except ObjectDoesNotExist:
+                        update.message.reply_text(
+                            TEXT_CARD_NOT_FOUND.format(update.message.text),
+                            parse_mode='Markdown',
+                            reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup
+                        )
 
 
 def error(bot, update, error):

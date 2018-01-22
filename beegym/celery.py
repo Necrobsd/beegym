@@ -15,8 +15,8 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'save-subscribers-statistics': {
         'task': 'bot_stat.tasks.save_stat',
-        'schedule': crontab(minute=0, hour=13),  # В 23-00 каждый день считаем
-                                                 #  статистику пользователей
+        'schedule': crontab(minute=58, hour=13), # В 23-58 каждый день считаем
+                                                 # статистику пользователей
     },
 }
 
