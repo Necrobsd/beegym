@@ -62,6 +62,15 @@
                     <td>{{ s.used_functions|get_count:"Расписание" }}</td>
                 </tr>
             {% endfor %}
+            <tr>
+            <td></td><td></td><td>Итого:</td>
+                    <td>{% get_total_count "start" %}</td>
+                    <td>{% get_total_count "Подписаться" %}</td>
+                    <td>{% get_total_count "Отписаться" %}</td>
+                    <td>{% get_total_count "Срок действия абонемента" %}</td>
+                    <td>{% get_total_count "Список групп для подписки" %}</td>
+                    <td>{% get_total_count "Мои подписки" %}</td>
+                    <td>{% get_total_count "Расписание" %}</td></tr>
             </tbody>
         </table>
     </div>
