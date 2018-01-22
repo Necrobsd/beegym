@@ -63,9 +63,8 @@ staff_reply_markup = ReplyKeyboardMarkup(staff_keyboard)
 
 
 def _save_stat_used_functions(subscriber, function):
-    month, year = localtime(now()).month, localtime(now()).year
     used_function, created = UsedFunctions.objects.get_or_create(
-        month=month, year=year, subscriber=subscriber, function=function
+        subscriber=subscriber, function=function
     )
     used_function.count += 1
     used_function.save()

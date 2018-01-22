@@ -17,8 +17,6 @@ class SubscribersStats(models.Model):
 
 
 class UsedFunctions(models.Model):
-    month = models.PositiveSmallIntegerField(verbose_name='Месяц', db_index=True)
-    year = models.PositiveSmallIntegerField(verbose_name='Год', db_index=True)
     subscriber = models.ForeignKey(Subscribers,
                                    related_name='used_functions',
                                    on_delete=models.CASCADE,
