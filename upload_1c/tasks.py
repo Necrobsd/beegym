@@ -11,12 +11,11 @@ def load_to_db(filename):
     file = os.path.join(default_storage.location, filename)
     if os.path.exists(file) and os.path.isfile(file):
         print('Получен файл = ', file)
-        with open(file, 'r') as f:
-            data = json.load(f)
+        with open(file, 'r', encoding='cp1251') as f:
+            data = json.load(f.read())
             for card_number, values in data.items():
                 if values['name']:
-                    # print(card_number, 'Дата истечения абонемента: ', values['exp_date'], 'Название абонемента: ', values['name'])
-
+                    print(card_number, 'Дата истечения абонемента: ', values['exp_date'], 'Название абонемента: ', values['name'])
                     try:
                         card = Cards.objects.get(card_number)
 

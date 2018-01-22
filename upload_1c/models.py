@@ -5,8 +5,8 @@ from django.db import models
 class Cards(models.Model):
     card_number = models.CharField(verbose_name='Номер карты',
                                    max_length=6, unique=True, db_index=True)
-    exp_date = models.DateField(verbose_name='Дата окончания абонемента',
-                                blank=True, null=True)
+    exp_date = models.CharField(verbose_name='Дата окончания абонемента',
+                                max_length=10, blank=True, null=True)
     is_active = models.BooleanField(verbose_name='Активация абонемента',
                                     default=False)
     name = models.CharField(verbose_name='Название абонемента',
