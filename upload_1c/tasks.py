@@ -17,8 +17,7 @@ def load_to_db(filename):
                 if values['name']:
                     print(card_number, 'Дата истечения абонемента: ', values['exp_date'], 'Название абонемента: ', values['name'])
                     try:
-                        card = Cards.objects.get(card_number)
-
+                        card = Cards.objects.get(card_number=card_number)
                         if card.exp_date != values['exp_date']:
                             card.exp_date = values['exp_date']
                             card.is_active = values['is_active']
