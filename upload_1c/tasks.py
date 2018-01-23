@@ -18,13 +18,15 @@ def load_to_db(filename):
             detector.feed(line)
             if detector.done: break
         detector.close()
-        enc = detector.result['encoding']
+        enc = detector.result['encoding'] if detector.result['encoding'] else 'utf-8'
+        print('Кодировка:', detector.result['encoding'])
         with open(file, 'r', encoding=enc) as f:
             data = json.load(f)
+            print('Data: ', data)
             for card_number, values in data.items():
                 if values['name']:
-                    print(card_number, 'Дата истечения абонемента: ',
-                          values['exp_date'], 'Название абонемента: ', values['name'])
+                    # print(card_number, 'Дата истечения абонемента: ',
+                    #       values['exp_date'], 'Название абонемента: ', values['name'])
                     try:
                         card = Cards.objects.get(card_number=card_number)
                         if card.exp_date != values['exp_date']:
