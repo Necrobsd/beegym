@@ -9,4 +9,9 @@ form {
 }
 #subscribers-table h2 {
     text-align: center;
+    margin: 20px;
+}
+#subscribers-table button {
+    margin: 20px auto;
+    display: block;
 }

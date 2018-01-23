@@ -34,6 +34,7 @@
     <div id='container'> Chart will be rendered here </div>
     <div id="subscribers-table">
         <h2>Использование функций бота подписчиками</h2>
+        <button id="show_hide_btn" class="button btn-info" onclick="show_hide_table()">Показать подробности</button>
         <table>
             <thead>
                 <th>№</th>
@@ -47,7 +48,7 @@
                 <th>Мои подписки</th>
                 <th>Расписание</th>
             </thead>
-            <tbody>
+            <tbody id="used_functions" style="display: none">
             {% for s in subscribers %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
@@ -62,17 +63,36 @@
                     <td>{{ s.used_functions|get_count:"Расписание" }}</td>
                 </tr>
             {% endfor %}
-            <tr>
-            <td></td><td></td><td>Итого:</td>
-                    <td>{% get_total_count "start" %}</td>
-                    <td>{% get_total_count "Подписаться" %}</td>
-                    <td>{% get_total_count "Отписаться" %}</td>
-                    <td>{% get_total_count "Срок действия абонемента" %}</td>
-                    <td>{% get_total_count "Список групп для подписки" %}</td>
-                    <td>{% get_total_count "Мои подписки" %}</td>
-                    <td>{% get_total_count "Расписание" %}</td></tr>
             </tbody>
+            <thead>
+                <th></th>
+                <th></th>
+                <th>Всего:</th>
+                <th>{% get_total_count "start" %}</th>
+                <th>{% get_total_count "Подписаться" %}</th>
+                <th>{% get_total_count "Отписаться" %}</th>
+                <th>{% get_total_count "Срок действия абонемента" %}</th>
+                <th>{% get_total_count "Список групп для подписки" %}</th>
+                <th>{% get_total_count "Мои подписки" %}</th>
+                <th>{% get_total_count "Расписание" %}</th>
+            </thead>
         </table>
     </div>
+<script>
+    function show_hide_table() {
+        var table = document.getElementById("used_functions");
+        var button = document.getElementById("show_hide_btn");
+        if (table.style.display == "none") {
+            table.style.display = "table-row-group";
+        } else {
+            table.style.display = "none";
+        }
+        if (button.innerHTML == "Показать подробности") {
+            button.innerHTML = "Скрыть подробности";
+        } else {
+            button.innerHTML = "Показать подробности";
+        }
+    }
+</script>
 </body>
 </html>
