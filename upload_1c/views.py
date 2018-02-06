@@ -7,6 +7,7 @@ from .tasks import load_to_db
 import json
 import os
 from django.utils.timezone import localtime, now
+from django.core.files.base import ContentFile
 
 
 # Create your views here.
@@ -27,18 +28,21 @@ def upload_cards(request):
                 print('Список переданных файлов: ', request.FILES)
                 try:
                     file = request.FILES['file']
-                except (KeyError, ValueError):
-                    return HttpResponse('You should send JSON file with key "file" (For example: file=my_file.json)')
-                try:
-                    data = json.load(file)
+                    filename = default_storage.save(str(file), ContentFile(file.read()))
+                    load_to_db(filename)
+                    return HttpResponse('ok')
+                # except (KeyError, ValueError):
+                    # return HttpResponse('You should send JSON file with key "file" (For example: file=my_file.json)')
+                # try:
+                #     data = json.load(file)
                 except Exception as e:
                     print('JSON file errors: {}'.format(e))
                     return HttpResponse('JSON file errors: {}'.format(e))
-                filename = '{}_1C.json'.format(localtime(now()).strftime("%d-%m-%Y_%H-%M-%S"))
-                with open(os.path.join(default_storage.location, filename), 'w', encoding='utf8') as f:
-                    json.dump(data, f, ensure_ascii=False)
-                load_to_db(filename)
-                return HttpResponse('ok')
+                # filename = '{}_1C.json'.format(localtime(now()).strftime("%d-%m-%Y_%H-%M-%S"))
+                # with open(os.path.join(default_storage.location, filename), 'w', encoding='utf8') as f:
+                #     json.dump(data, f, ensure_ascii=False)
+                # load_to_db(filename)
+                # return HttpResponse('ok')
 
     # Если не авторизовали — даем ответ с 401, требуем авторизоваться
     if user is None or not user.is_active:
