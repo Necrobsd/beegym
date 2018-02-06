@@ -29,7 +29,9 @@ def upload_cards(request):
                 print('Список переданных файлов: ', request.FILES)
                 try:
                     file = request.FILES['file']
-                    filename = default_storage.save(str(file), ContentFile(file.read()))
+                    upload_date = localtime(now()).strftime("%d-%m-%Y_%H-%M-%S")
+                    filename = default_storage.save('upload_{}_{}'.format(upload_date, str(file)),
+                                                    ContentFile(file.read()))
                     load_to_db(filename)
                     return HttpResponse('ok')
                 # except (KeyError, ValueError):
