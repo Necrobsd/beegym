@@ -35,7 +35,7 @@ def upload_cards(request):
                     print('JSON file errors: {}'.format(e))
                     return HttpResponse('JSON file errors: {}'.format(e))
                 filename = '{}_1C.json'.format(localtime(now()).strftime("%d-%m-%Y_%H-%M-%S"))
-                with open(os.path.join(default_storage.location, filename), 'w') as f:
+                with open(os.path.join(default_storage.location, filename), 'w', encoding='utf8') as f:
                     json.dump(data, f, ensure_ascii=False)
                 load_to_db(filename)
                 return HttpResponse('ok')
