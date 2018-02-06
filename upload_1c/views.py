@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponse
+from django.http import HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 import base64
 from django.core.files.storage import default_storage
@@ -37,7 +38,7 @@ def upload_cards(request):
                 #     data = json.load(file)
                 except Exception as e:
                     print('JSON file errors: {}'.format(e))
-                    return HttpResponse('JSON file errors: {}'.format(e))
+                    return HttpResponseBadRequest('JSON file errors: {}'.format(e))
                 # filename = '{}_1C.json'.format(localtime(now()).strftime("%d-%m-%Y_%H-%M-%S"))
                 # with open(os.path.join(default_storage.location, filename), 'w', encoding='utf8') as f:
                 #     json.dump(data, f, ensure_ascii=False)
