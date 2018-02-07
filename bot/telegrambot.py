@@ -198,9 +198,9 @@ def groups_list_and_timetable(bot, update):
         groups = Groups.objects.exclude(is_default=True)
         groups_text = '*Список секций:*\n'
         for count, group in enumerate(groups, 1):
-            groups_text += '_{}. {} - {}_\n'.format(count, group.name, group.description)
+            groups_text += '*{}. {}* _- {}_\n'.format(count, group.name, group.description)
             if group.timetable:
-                groups_text += 'Расписание занятий:\n_{}_\n'.format(group.timetable)
+                groups_text += '*Расписание занятий:*\n_{}_\n'.format(group.timetable)
         update.message.reply_text(
             groups_text,
             parse_mode='Markdown',
