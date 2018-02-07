@@ -40,13 +40,11 @@
                 <th>№</th>
                 <th>telegram-id</th>
                 <th>Имя</th>
-                <th>Start</th>
                 <th>Подписаться</th>
                 <th>Отписаться</th>
-                <th>Срок действия абонемента</th>
-                <th>Список групп для подписки</th>
                 <th>Мои подписки</th>
-                <th>Расписание</th>
+                <th>Список секций и расписание занятий</th>
+                <th>Срок действия абонемента</th>
             </thead>
             <tbody id="used_functions" style="display: none">
             {% for s in subscribers %}
@@ -54,13 +52,11 @@
                     <td>{{ forloop.counter }}</td>
                     <td>{{ s.chat_id }}</td>
                     <td>{{ s.name }}</td>
-                    <td>{{ s.used_functions|get_count:"start" }}</td>
                     <td>{{ s.used_functions|get_count:"Подписаться" }}</td>
                     <td>{{ s.used_functions|get_count:"Отписаться" }}</td>
-                    <td>{{ s.used_functions|get_count:"Срок действия абонемента" }}</td>
-                    <td>{{ s.used_functions|get_count:"Список групп для подписки" }}</td>
                     <td>{{ s.used_functions|get_count:"Мои подписки" }}</td>
-                    <td>{{ s.used_functions|get_count:"Расписание" }}</td>
+                    <td>{{ s.used_functions|get_count:"Список секций и расписание занятий" }}</td>
+                    <td>{{ s.used_functions|get_count:"Срок действия абонемента" }}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -68,13 +64,11 @@
                 <th></th>
                 <th></th>
                 <th>Всего:</th>
-                <th>{% get_total_count "start" %}</th>
                 <th>{% get_total_count "Подписаться" %}</th>
                 <th>{% get_total_count "Отписаться" %}</th>
-                <th>{% get_total_count "Срок действия абонемента" %}</th>
-                <th>{% get_total_count "Список групп для подписки" %}</th>
                 <th>{% get_total_count "Мои подписки" %}</th>
-                <th>{% get_total_count "Расписание" %}</th>
+                <th>{% get_total_count "Список секций и расписание занятий" %}</th>
+                <th>{% get_total_count "Срок действия абонемента" %}</th>
             </thead>
         </table>
     </div>
