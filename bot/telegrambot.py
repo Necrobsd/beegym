@@ -35,18 +35,18 @@ MAILING_GROUP = {}
 
 main_keyboard = [
     [KeyboardButton("Подписаться"), KeyboardButton("Отписаться")],
-    [KeyboardButton("Список групп для подписки")],
     [KeyboardButton("Мои подписки")],
-    [KeyboardButton("Расписание занятий")],
+    [KeyboardButton("Список секций и расписание занятий")],
+    [KeyboardButton("Срок действия абонемента")],
     [KeyboardButton("Отменить все подписки и покинуть нас")]
 ]
 
 staff_keyboard = [
     [KeyboardButton("Новая рассылка")],
     [KeyboardButton("Подписаться"), KeyboardButton("Отписаться")],
-    [KeyboardButton("Список групп для подписки")],
     [KeyboardButton("Мои подписки")],
-    [KeyboardButton("Расписание занятий")],
+    [KeyboardButton("Список секций и расписание занятий")],
+    [KeyboardButton("Срок действия абонемента")],
     [KeyboardButton("Отменить все подписки и покинуть нас")]
 ]
 
@@ -99,7 +99,6 @@ def start(bot, update):
                                            reply_markup=main_reply_markup)
         time.sleep(TIMEOUT)
         bot.sendMessage(472186134, 'Новый подписчик: {}'.format(name))
-    _save_stat_used_functions(subscriber=subscriber, function='start')
 
 
 def stop(bot, update):
@@ -193,18 +192,20 @@ def card(bot, update):
         _save_stat_used_functions(subscriber=subscriber, function='Срок действия абонемента')
 
 
-def groups_list(bot, update):
+def groups_list_and_timetable(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
         groups = Groups.objects.exclude(is_default=True)
-        groups_text = '*Список групп для подписки:*\n'
+        groups_text = '*Список секций:*\n'
         for count, group in enumerate(groups, 1):
             groups_text += '_{}. {} - {}_\n'.format(count, group.name, group.description)
+            if group.timetable:
+                groups_text += 'Расписание занятий:\n_{}_\n'.format(group.timetable)
         update.message.reply_text(
             groups_text,
             parse_mode='Markdown',
             reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
-        _save_stat_used_functions(subscriber=subscriber, function='Список групп для подписки')
+        _save_stat_used_functions(subscriber=subscriber, function='Список секций и расписание занятий')
 
 
 def get_my_subscribes(bot, update):
@@ -228,24 +229,24 @@ def help(bot, update):
     bot.sendMessage()
 
 
-def timetable(bot, update):
-    subscriber = _check_subscriber_exists(update)
-    if subscriber:
-        timetable_text = ''
-        for group in Groups.objects.exclude(is_default=True):
-            if group.timetable:
-                timetable_text += '*{}*\n_{}_\n'.format(group.name, group.timetable)
-        if timetable_text:
-            update.message.reply_text(
-                timetable_text,
-                parse_mode='Markdown',
-                reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
-        else:
-            update.message.reply_text(
-                'На данный момент расписание недоступно.',
-                parse_mode='Markdown',
-                reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
-        _save_stat_used_functions(subscriber=subscriber, function='Расписание')
+# def timetable(bot, update):
+#     subscriber = _check_subscriber_exists(update)
+#     if subscriber:
+#         timetable_text = ''
+#         for group in Groups.objects.exclude(is_default=True):
+#             if group.timetable:
+#                 timetable_text += '*{}*\n_{}_\n'.format(group.name, group.timetable)
+#         if timetable_text:
+#             update.message.reply_text(
+#                 timetable_text,
+#                 parse_mode='Markdown',
+#                 reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+#         else:
+#             update.message.reply_text(
+#                 'На данный момент расписание недоступно.',
+#                 parse_mode='Markdown',
+#                 reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup)
+#         _save_stat_used_functions(subscriber=subscriber, function='Расписание')
 
 
 def login(bot, update):
@@ -347,14 +348,14 @@ def text(bot, update):
                 add(bot, update)
             elif update.message.text == 'Отписаться':
                 delete(bot, update)
-            elif update.message.text == 'Список групп для подписки':
-                groups_list(bot, update)
+            elif update.message.text == 'Список секций и расписание занятий':
+                groups_list_and_timetable(bot, update)
             elif update.message.text == 'Мои подписки':
                 get_my_subscribes(bot, update)
             elif update.message.text == 'Срок действия абонемента':
                 card(bot, update)
-            elif update.message.text == 'Расписание занятий':
-                timetable(bot, update)
+            # elif update.message.text == 'Расписание занятий':
+            #     timetable(bot, update)
             elif update.message.text == 'Отменить все подписки и покинуть нас':
                 stop(bot, update)
             elif update.message.text == 'Новая рассылка':
@@ -363,7 +364,9 @@ def text(bot, update):
                 update.message.reply_text(
                     'Извините, я не знаю такой команды: "{}"\n{}'.format(update.message.text,
                                                                          SAD_EMOJI))
-                update.message.reply_text('Выберите действие:', reply_markup=main_reply_markup)
+                update.message.reply_text('Выберите действие:',
+                                          reply_markup=staff_reply_markup if _is_staff(subscriber)
+                                          else main_reply_markup)
         else:
             if subscriber.subscribing_status == 'sub':
                 if update.message.text in _get_groups_for_subscribe(update):
@@ -478,8 +481,7 @@ def main():
     dp.add_handler(CommandHandler("add", add))
     dp.add_handler(CommandHandler("delete", delete))
     dp.add_handler(CommandHandler("me", get_my_subscribes))
-    dp.add_handler(CommandHandler("list", groups_list))
-    dp.add_handler(CommandHandler("timetable", timetable))
+    dp.add_handler(CommandHandler("list", groups_list_and_timetable))
     dp.add_handler(CommandHandler("login", login))
 
     # on noncommand i.e message - echo the message on Telegram

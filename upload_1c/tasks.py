@@ -11,7 +11,7 @@ from chardet.universaldetector import UniversalDetector
 def load_to_db(filename):
     file = os.path.join(default_storage.location, filename)
     if os.path.exists(file) and os.path.isfile(file):
-        print('Получен файл = ', file)
+        print('Получен файл: ', file)
         detector = UniversalDetector()
         detector.reset()
         for line in open(file, 'rb'):
@@ -22,7 +22,6 @@ def load_to_db(filename):
         print('Кодировка:', detector.result['encoding'])
         with open(file, 'r', encoding=enc) as f:
             data = json.load(f)
-            print('Data: ', data)
             for card_number, values in data.items():
                 if values['name']:
                     # print(card_number, 'Дата истечения абонемента: ',
@@ -43,4 +42,4 @@ def load_to_db(filename):
         # print('Сохранение данных в базу завершено. Удаляем полученный файл ', file)
         # os.remove(file)
     else:
-        print('Ошибка. Полученный файл не существует или не является файлом = ', file)
+        print('Ошибка. Полученный файл не существует или не является файлом: ', file)
