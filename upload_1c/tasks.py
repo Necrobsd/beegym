@@ -24,7 +24,7 @@ def load_to_db(filename):
             data = json.load(f)
             for card_number, values in data.items():
                 if values['name']:
-                    if values['name'].lower().find("абонемент") != -1:
+                    if values['name'].lower().find("разовый") == -1:
                     # print(card_number, 'Дата истечения абонемента: ',
                     #       values['exp_date'], 'Название абонемента: ', values['name'])
                         try:
