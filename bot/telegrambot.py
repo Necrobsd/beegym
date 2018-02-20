@@ -54,7 +54,7 @@ cancel_keyboard = [
     [KeyboardButton("Отмена")]
 ]
 
-cancel_reply_markup = ReplyKeyboardMarkup(cancel_keyboard)
+cancel_reply_markup = ReplyKeyboardMarkup(cancel_keyboard, resize_keyboard=True)
 main_reply_markup = ReplyKeyboardMarkup(main_keyboard)
 staff_reply_markup = ReplyKeyboardMarkup(staff_keyboard)
 
@@ -73,7 +73,8 @@ def _save_stat_used_functions(subscriber, function):
 def start(bot, update):
     try:
         subscriber = Subscribers.objects.get(chat_id=update.message.chat_id)
-        update.message.reply_text('Рады снова Вас видеть! Выберите действие:', reply_markup=main_reply_markup)
+        update.message.reply_text('Рады снова Вас видеть! Выберите действие:',
+                                  reply_markup=main_reply_markup)
     except ObjectDoesNotExist:
         name = update.effective_user.first_name
         if update.effective_user.last_name:
@@ -106,7 +107,8 @@ def stop(bot, update):
     subscriber.delete()
     update.message.reply_text('*Спасибо что были с нами!*\n'
                               'Все Ваши подписки удалены.\n'
-                              'До новых встреч!', parse_mode='Markdown', reply_markup=ReplyKeyboardRemove())
+                              'До новых встреч!', parse_mode='Markdown',
+                              reply_markup=ReplyKeyboardRemove())
 
 
 def _check_subscriber_exists(update):
@@ -184,7 +186,7 @@ def card(bot, update):
     subscriber = _check_subscriber_exists(update)
     if subscriber:
         update.message.reply_text(
-            'Введите номер Вашей карты или нажмите Отмена',
+            'Введите пятизначный номер Вашей карты или нажмите Отмена',
             parse_mode='Markdown',
             reply_markup=cancel_reply_markup)
         subscriber.subscribing_status = 'card_expire'
