@@ -446,6 +446,12 @@ def text(bot, update):
                                 parse_mode='Markdown',
                                 reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup
                             )
+                        elif client_card.exp_date < localtime(now()):
+                            update.message.reply_text(
+                                TEXT_CARD_NOT_FOUND.format(update.message.text),
+                                parse_mode='Markdown',
+                                reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup
+                            )
                         else:
                             update.message.reply_text(
                                 '*{}*\nДействует до: {}'.format(client_card.name,

@@ -5,6 +5,21 @@ from django.core.files.storage import default_storage
 from .models import Cards
 import os
 from chardet.universaldetector import UniversalDetector
+import pytz
+from datetime import datetime
+
+
+local_tz = pytz.timezone("Asia/Vladivostok")
+utc_tz = pytz.utc
+
+
+def transform_to_date(date_str):
+    if date_str:
+        date_str += ' 23:59:59'
+        date = datetime.strptime(date_str, '%d.%m.%Y %H:%M:%S')
+        return local_tz.localize(date)
+    else:
+        return None
 
 
 # @app.task()
@@ -37,7 +52,7 @@ def load_to_db(filename):
                         except ObjectDoesNotExist:
                             Cards.objects.create(
                                 card_number=card_number,
-                                exp_date=values['exp_date'],
+                                exp_date=transform_to_date(values['exp_date']),
                                 is_active=values['is_active'],
                                 name=values['name'])
         # print('Сохранение данных в базу завершено. Удаляем полученный файл ', file)
