@@ -455,7 +455,7 @@ def text(bot, update):
                         else:
                             update.message.reply_text(
                                 '*{}*\nДействует до: {}'.format(client_card.name,
-                                                                client_card.exp_date),
+                                                                client_card.exp_date.strftime('%d.%m.%Y')),
                                 parse_mode='Markdown',
                                 reply_markup=staff_reply_markup if _is_staff(subscriber) else main_reply_markup
                             )
