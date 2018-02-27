@@ -44,8 +44,8 @@ def load_to_db(filename):
                     #       values['exp_date'], 'Название абонемента: ', values['name'])
                         try:
                             card = Cards.objects.get(card_number=card_number)
-                            if card.exp_date != values['exp_date']:
-                                card.exp_date = values['exp_date']
+                            if card.exp_date != transform_to_date(values['exp_date']):
+                                card.exp_date = transform_to_date(values['exp_date'])
                                 card.is_active = values['is_active']
                                 card.name = values['name']
                                 card.save()
