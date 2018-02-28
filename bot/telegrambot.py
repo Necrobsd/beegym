@@ -63,11 +63,19 @@ staff_reply_markup = ReplyKeyboardMarkup(staff_keyboard)
 
 
 def _save_stat_used_functions(subscriber, function):
-    used_function, created = UsedFunctions.objects.get_or_create(
-        subscriber=subscriber, function=function
-    )
-    used_function.count += 1
-    used_function.save()
+    """
+    Функция сохранения статистики использования функций бота пользователями
+
+    :param subscriber: Подписчик
+    :param function: Название вызываемой функции
+    :return: None
+    """
+    if subscriber.chat_id != 472186134:
+        used_function, created = UsedFunctions.objects.get_or_create(
+            subscriber=subscriber, function=function
+        )
+        used_function.count += 1
+        used_function.save()
 
 
 def start(bot, update):
