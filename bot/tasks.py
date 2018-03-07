@@ -32,14 +32,17 @@ def send_message(self, text_message=None, photo_message=None):
                             print(response)
                             file_id = response.photo[-1].file_id
                         except TelegramError as error:
-                            print(error.message)
+                            print('Получен TelegramError: ', error.message)
                     else:
-                        response = bot.sendPhoto(
-                            subscriber.subscriber.chat_id,
-                            # 472186134,
-                            photo=file_id if file_id else image_url,
-                            caption=message.text)
-                        print(response)
+                        try:
+                            response = bot.sendPhoto(
+                                subscriber.subscriber.chat_id,
+                                # 472186134,
+                                photo=file_id if file_id else image_url,
+                                caption=message.text)
+                            print(response)
+                        except TelegramError as error:
+                            print('Получен TelegramError: ', error.message)
                 message.status = True
                 message.save()
             except ObjectDoesNotExist:
@@ -58,7 +61,7 @@ def send_message(self, text_message=None, photo_message=None):
                             text, parse_mode='Markdown')
                         print(response)
                     except TelegramError as error:
-                        print(error.message)
+                        print('Получен TelegramError: ', error.message)
                 message.status = True
                 message.save()
             except ObjectDoesNotExist:
