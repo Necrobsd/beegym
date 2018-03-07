@@ -20,8 +20,7 @@ def send_message(text_message=None, photo_message=None):
             try:
                 message = PhotoMessages.objects.get(id=photo_message)
                 image_url = settings.DJANGO_TELEGRAMBOT.get('WEBHOOK_SITE') + message.image.url
-                subs = message.group.subscribers.all()[4:]
-                for counter, subscriber in enumerate(subs):
+                for counter, subscriber in enumerate(message.group.subscribers.all()):
                     time.sleep(TIMEOUT)
                     try:
                         response = bot.sendPhoto(
