@@ -23,27 +23,15 @@ def send_message(text_message=None, photo_message=None):
                 subs = message.group.subscribers.all()[4:]
                 for counter, subscriber in enumerate(subs):
                     time.sleep(TIMEOUT)
-                    if not counter:
-                        try:
-                            response = bot.sendPhoto(
-                                subscriber.subscriber.chat_id,
-                                # 472186134,
-                                photo=image_url,
-                                caption=message.text)
-                            print(response)
-                            file_id = response.photo[-1].file_id
-                        except TelegramError as error:
-                            print('Получен TelegramError: ', error.message)
-                    else:
-                        try:
-                            response = bot.sendPhoto(
-                                subscriber.subscriber.chat_id,
-                                # 472186134,
-                                photo=file_id if file_id else image_url,
-                                caption=message.text)
-                            print(response)
-                        except TelegramError as error:
-                            print('Получен TelegramError: ', error.message)
+                    try:
+                        response = bot.sendPhoto(
+                            subscriber.subscriber.chat_id,
+                            # 472186134,
+                            photo=image_url,
+                            caption=message.text)
+                        print(response)
+                    except TelegramError as error:
+                        print('Получен TelegramError: ', error.message)
                 message.status = True
                 message.save()
             except ObjectDoesNotExist:
