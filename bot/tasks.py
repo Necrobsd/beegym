@@ -11,9 +11,9 @@ import time
 TIMEOUT = 1/25
 
 
-@app.task(bind=True, default_retry_delay=300, max_retries=3, time_limit=5 * 60)
-# @app.task()
-def send_message(self, text_message=None, photo_message=None):
+#@app.task(bind=True, default_retry_delay=300, max_retries=3, time_limit=5 * 60)
+@app.task()
+def send_message(text_message=None, photo_message=None):
     try:
         bot = DjangoTelegramBot.get_bot()
         if photo_message:
@@ -24,23 +24,25 @@ def send_message(self, text_message=None, photo_message=None):
                     time.sleep(TIMEOUT)
                     if not counter:
                         try:
-                            response = bot.sendPhoto(
-                                subscriber.subscriber.chat_id,
-                                # 472186134,
-                                photo=image_url,
-                                caption=message.text)
-                            print(response)
-                            file_id = response.photo[-1].file_id
+                            if subscriber.subscriber.chat_id not in [450095970, 475916801, 305753645, 349554025]:
+                                response = bot.sendPhoto(
+                                    subscriber.subscriber.chat_id,
+                                    # 472186134,
+                                    photo=image_url,
+                                    caption=message.text)
+                                print(response)
+                                file_id = response.photo[-1].file_id
                         except TelegramError as error:
                             print('Получен TelegramError: ', error.message)
                     else:
                         try:
-                            response = bot.sendPhoto(
-                                subscriber.subscriber.chat_id,
-                                # 472186134,
-                                photo=file_id if file_id else image_url,
-                                caption=message.text)
-                            print(response)
+                            if subscriber.subscriber.chat_id not in [450095970, 475916801, 305753645, 349554025]:
+                                response = bot.sendPhoto(
+                                    subscriber.subscriber.chat_id,
+                                    # 472186134,
+                                    photo=file_id if file_id else image_url,
+                                    caption=message.text)
+                                print(response)
                         except TelegramError as error:
                             print('Получен TelegramError: ', error.message)
                 message.status = True
@@ -67,5 +69,5 @@ def send_message(self, text_message=None, photo_message=None):
             except ObjectDoesNotExist:
                 pass
     except Exception as e:
-        print(e)
-        raise self.retry(e)
+        print('Ошибка: ', e)
+        #raise self.retry(e)
