@@ -94,7 +94,7 @@ class PhotoMessages(models.Model):
                               help_text='Максимальный размер - 2 Мб')
     text = models.TextField(max_length=200, verbose_name='Текст описания',
                             help_text='Максимум 200 символов(поле не обязательно для заполнения)',
-                            default='')
+                            null=True, blank=True)
     expiration_date = models.DateTimeField(
         verbose_name='Дата окончания рассылки',
         null=True, blank=True,
