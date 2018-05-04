@@ -27,7 +27,7 @@ def send_message(text_message=None, photo_message=None):
                             subscriber.subscriber.chat_id,
                             # 472186134,
                             photo=image_url,
-                            caption=message.text)
+                            caption=message.text if message.text else '')
                         print(response)
                     except TelegramError as error:
                         print('Получен TelegramError: ', error.message)
