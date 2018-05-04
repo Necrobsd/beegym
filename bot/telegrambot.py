@@ -107,16 +107,22 @@ def start(bot, update):
                                            caption=offer.text,
                                            reply_markup=main_reply_markup)
         time.sleep(TIMEOUT)
-        bot.sendMessage(472186134, 'Новый подписчик: {}'.format(name))
+        bot.sendMessage(472186134,
+                        'Новый подписчик: {}.'
+                        ' Подписчиков: {}'.format(name, Subscribers.objects.count()))
 
 
 def stop(bot, update):
     subscriber = Subscribers.objects.get(chat_id=update.message.chat_id)
+    name = subscriber.name
     subscriber.delete()
     update.message.reply_text('*Спасибо что были с нами!*\n'
                               'Все Ваши подписки удалены.\n'
                               'До новых встреч!', parse_mode='Markdown',
                               reply_markup=ReplyKeyboardRemove())
+    bot.sendMessage(472186134,
+                    'Удалился подписчик: {}.'
+                    ' Подписчиков: {}'.format(name, Subscribers.objects.count()))
 
 
 def _check_subscriber_exists(update):
