@@ -85,6 +85,7 @@ def start(bot, update):
                                   reply_markup=main_reply_markup)
     except ObjectDoesNotExist:
         name = update.effective_user.first_name
+        username = update.message.chat.username
         if update.effective_user.last_name:
             name += ' {}'.format(update.effective_user.last_name)
         subscriber = Subscribers.objects.create(chat_id=update.message.chat_id, name=name)
@@ -108,8 +109,8 @@ def start(bot, update):
                                            reply_markup=main_reply_markup)
         time.sleep(TIMEOUT)
         bot.sendMessage(472186134,
-                        'Новый подписчик: {}.'
-                        ' Подписчиков: {}'.format(name, Subscribers.objects.count()))
+                        'Новый подписчик: {}. @{}'
+                        ' Подписчиков: {}'.format(name, username, Subscribers.objects.count()))
 
 
 def stop(bot, update):
