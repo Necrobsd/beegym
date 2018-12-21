@@ -8,7 +8,7 @@ from upload_1c.models import Cards
 from django.core.exceptions import ObjectDoesNotExist
 import logging
 from django.utils.timezone import localtime, now, timedelta
-from .tasks import TIMEOUT
+from .tasks import TIMEOUT, send_adv
 import time
 from django.contrib.auth import authenticate
 from . tasks import send_message
@@ -107,6 +107,7 @@ def start(bot, update):
                                            caption=offer.text,
                                            reply_markup=main_reply_markup)
         time.sleep(TIMEOUT)
+        send_adv.delay(chat_id)  # Отправка рекламного сообщения через 2 минуты
         bot.sendMessage(472186134,
                         'Новый подписчик: {}. @{}'
                         ' Подписчиков: {}'.format(name, username, Subscribers.objects.count()))
