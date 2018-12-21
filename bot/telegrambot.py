@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Example code for telegrambot.py module
 from telegram.ext import CommandHandler, MessageHandler, Filters
-from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, ChatAction
 from django_telegrambot.apps import DjangoTelegramBot
 from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText, PhotoMessages, TextMessages
 from upload_1c.models import Cards
@@ -58,8 +58,12 @@ cancel_reply_markup = ReplyKeyboardMarkup(cancel_keyboard, resize_keyboard=True)
 main_reply_markup = ReplyKeyboardMarkup(main_keyboard)
 staff_reply_markup = ReplyKeyboardMarkup(staff_keyboard)
 
-# Define a few command handlers. These usually take the two arguments bot and
-# update. Error handlers also receive the raised TelegramError object in error.
+
+def alarm(bot, job):
+    """Отправка рекламного сообщения"""
+    bot.send_chat_action(job.context, action=ChatAction.TYPING)
+    text = 'Понравился бот? Хочешь такого-же? Пиши сюда -> @AlexReznikoff'
+    bot.send_message(job.context, text=text)
 
 
 def _save_stat_used_functions(subscriber, function):
@@ -78,9 +82,10 @@ def _save_stat_used_functions(subscriber, function):
         used_function.save()
 
 
-def start(bot, update):
+def start(bot, update, args, job_queue, chat_data):
+    chat_id = update.message.chat_id
     try:
-        subscriber = Subscribers.objects.get(chat_id=update.message.chat_id)
+        subscriber = Subscribers.objects.get(chat_id=chat_id)
         update.message.reply_text('Рады снова Вас видеть! Выберите действие:',
                                   reply_markup=main_reply_markup)
     except ObjectDoesNotExist:
@@ -88,7 +93,7 @@ def start(bot, update):
         username = update.message.chat.username
         if update.effective_user.last_name:
             name += ' {}'.format(update.effective_user.last_name)
-        subscriber = Subscribers.objects.create(chat_id=update.message.chat_id, name=name)
+        subscriber = Subscribers.objects.create(chat_id=chat_id, name=name)
         try:
             default_group = Groups.objects.get(is_default=True)
             subscriber.groups.create(group=default_group)
@@ -98,6 +103,9 @@ def start(bot, update):
             welcome = WelcomeText.objects.last().text
         except:
             welcome = 'Добро пожаловать!'
+
+        job = job_queue.run_once(alarm, 60 * 2, context=chat_id)
+        chat_data['job'] = job
         update.message.reply_text(welcome, reply_markup=main_reply_markup)
         # Получаем и отправляем подписчику все текущие акции
         current_offers = PhotoMessages.objects.filter(expiration_date__gte=localtime(now()))
@@ -498,7 +506,10 @@ def main():
     # dp = DjangoTelegramBot.getDispatcher('BOT_n_username')  #get by bot username
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("start", start,
+                                  pass_args=True,
+                                  pass_job_queue=True,
+                                  pass_chat_data=True))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("card", card))
     dp.add_handler(CommandHandler("add", add))
