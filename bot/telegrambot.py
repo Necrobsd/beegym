@@ -59,13 +59,6 @@ main_reply_markup = ReplyKeyboardMarkup(main_keyboard)
 staff_reply_markup = ReplyKeyboardMarkup(staff_keyboard)
 
 
-def alarm(bot, job):
-    """Отправка рекламного сообщения"""
-    bot.send_chat_action(job.context, action=ChatAction.TYPING)
-    text = 'Понравился бот? Хочешь такого-же? Пиши сюда -> @AlexReznikoff'
-    bot.send_message(job.context, text=text)
-
-
 def _save_stat_used_functions(subscriber, function):
     """
     Функция сохранения статистики использования функций бота пользователями
@@ -82,7 +75,7 @@ def _save_stat_used_functions(subscriber, function):
         used_function.save()
 
 
-def start(bot, update, args, job_queue, chat_data):
+def start(bot, update):
     chat_id = update.message.chat_id
     try:
         subscriber = Subscribers.objects.get(chat_id=chat_id)
@@ -104,8 +97,6 @@ def start(bot, update, args, job_queue, chat_data):
         except:
             welcome = 'Добро пожаловать!'
 
-        job = job_queue.run_once(alarm, 60 * 2, context=chat_id)
-        chat_data['job'] = job
         update.message.reply_text(welcome, reply_markup=main_reply_markup)
         # Получаем и отправляем подписчику все текущие акции
         current_offers = PhotoMessages.objects.filter(expiration_date__gte=localtime(now()))
@@ -506,10 +497,7 @@ def main():
     # dp = DjangoTelegramBot.getDispatcher('BOT_n_username')  #get by bot username
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start,
-                                  pass_args=True,
-                                  pass_job_queue=True,
-                                  pass_chat_data=True))
+    dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("card", card))
     dp.add_handler(CommandHandler("add", add))
