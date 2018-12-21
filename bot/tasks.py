@@ -1,6 +1,5 @@
 from celery import Celery
 from django_telegrambot.apps import DjangoTelegramBot
-from telegram import ChatAction
 from django.core.exceptions import ObjectDoesNotExist
 from telegram.error import TelegramError
 from . models import TextMessages, PhotoMessages
@@ -59,18 +58,3 @@ def send_message(text_message=None, photo_message=None):
         print('Ошибка: ', e)
         #raise self.retry(e)
 
-
-@app.task
-def send_adv(chat_id):
-    time.sleep(60 * 2)
-    bot = DjangoTelegramBot.get_bot()
-    try:
-        bot.send_chat_action(chat_id, action=ChatAction.TYPING)
-    except TelegramError as error:
-        print('Получен TelegramError: ', error.message)
-    time.sleep(TIMEOUT)
-    try:
-        text = 'Понравился бот? Хочешь такого-же? Пиши сюда -> @AlexReznikoff'
-        bot.send_message(chat_id, text=text)
-    except TelegramError as error:
-        print('Получен TelegramError: ', error.message)
