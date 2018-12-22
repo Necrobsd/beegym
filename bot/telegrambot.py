@@ -4,7 +4,6 @@ from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, ChatAction
 from django_telegrambot.apps import DjangoTelegramBot
 
-from bot import send_adv_message
 from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText, PhotoMessages, TextMessages
 from upload_1c.models import Cards
 from django.core.exceptions import ObjectDoesNotExist
