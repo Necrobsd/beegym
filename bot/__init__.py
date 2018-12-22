@@ -9,7 +9,7 @@ default_app_config = "bot.apps.BotConfig"
 @task(executor=TaskExecutor.SPOOLER)
 def send_adv_message(chat_id, bot):
     """Функция отправки новым пользователям рекламного сообщения"""
-    time.sleep(15)  # Ждем две минуты после начала работы с ботом
+    time.sleep(60 * 2)  # Ждем две минуты после начала работы с ботом
     try:
         bot.send_chat_action(chat_id, action=ChatAction.TYPING)  # Отправка статуса о наборе сообщения
     except:
