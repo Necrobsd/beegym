@@ -14,7 +14,7 @@ from uwsgi_tasks import task, TaskExecutor, get_current_task
 TIMEOUT = 1/25
 
 
-@task(executor=TaskExecutor.RUNTIME, retry_count=0, at=datetime.timedelta(minutes=1))
+@task(executor=TaskExecutor.MULE, retry_count=0, at=datetime.timedelta(minutes=1))
 def send_adv_message(chat_id, bot):
     """Функция отправки новым пользователям рекламного сообщения"""
     # time.sleep(60 * 2)  # Ждем две минуты после начала работы с ботом
