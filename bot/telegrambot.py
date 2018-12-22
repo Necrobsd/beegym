@@ -3,6 +3,8 @@
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, ChatAction
 from django_telegrambot.apps import DjangoTelegramBot
+
+from bot import send_adv_message
 from . models import Groups, Subscribers, SubscribersInGroups, WelcomeText, PhotoMessages, TextMessages
 from upload_1c.models import Cards
 from django.core.exceptions import ObjectDoesNotExist
@@ -12,7 +14,6 @@ import time
 from django.contrib.auth import authenticate
 from . tasks import send_message, TIMEOUT
 from bot_stat.models import UsedFunctions
-from uwsgi_tasks import task, TaskExecutor
 
 
 logger = logging.getLogger(__name__)
@@ -58,15 +59,6 @@ cancel_keyboard = [
 cancel_reply_markup = ReplyKeyboardMarkup(cancel_keyboard, resize_keyboard=True)
 main_reply_markup = ReplyKeyboardMarkup(main_keyboard)
 staff_reply_markup = ReplyKeyboardMarkup(staff_keyboard)
-
-
-@task(executor=TaskExecutor.SPOOLER)
-def send_adv_message(chat_id, bot):
-    """Функция отправки новым пользователям рекламного сообщения"""
-    time.sleep(60 * 2)  # Ждем две минуты после начала работы с ботом
-    bot.send_chat_action(chat_id, action=ChatAction.TYPING)  # Отправка статуса о наборе сообщения
-    time.sleep(5)
-    return bot.sendMessage(chat_id, text='Понравился бот? Хочешь такого-же? Пиши сюда -> @AlexReznikoff')
 
 
 def _save_stat_used_functions(subscriber, function):
