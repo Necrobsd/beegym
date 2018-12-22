@@ -12,7 +12,7 @@ import logging
 from django.utils.timezone import localtime, now, timedelta
 import time
 from django.contrib.auth import authenticate
-from . tasks import send_message, TIMEOUT
+from . tasks import send_message, TIMEOUT, send_adv_message
 from bot_stat.models import UsedFunctions
 
 
