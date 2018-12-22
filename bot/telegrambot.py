@@ -10,8 +10,10 @@ import logging
 from django.utils.timezone import localtime, now, timedelta
 import time
 from django.contrib.auth import authenticate
-from . tasks import send_message
+from . tasks import send_message, TIMEOUT
 from bot_stat.models import UsedFunctions
+from uwsgi_tasks import task, TaskExecutor
+
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +58,15 @@ cancel_keyboard = [
 cancel_reply_markup = ReplyKeyboardMarkup(cancel_keyboard, resize_keyboard=True)
 main_reply_markup = ReplyKeyboardMarkup(main_keyboard)
 staff_reply_markup = ReplyKeyboardMarkup(staff_keyboard)
+
+
+@task(executor=TaskExecutor.SPOOLER)
+def send_adv_message(chat_id, bot):
+    """Функция отправки новым пользователям рекламного сообщения"""
+    time.sleep(60 * 2)  # Ждем две минуты после начала работы с ботом
+    bot.send_chat_action(chat_id, action=ChatAction.TYPING)  # Отправка статуса о наборе сообщения
+    time.sleep(5)
+    return bot.sendMessage(chat_id, text='Понравился бот? Хочешь такого-же? Пиши сюда -> @AlexReznikoff')
 
 
 def _save_stat_used_functions(subscriber, function):
@@ -109,6 +120,7 @@ def start(bot, update):
         bot.sendMessage(472186134,
                         'Новый подписчик: {}. @{}'
                         ' Подписчиков: {}'.format(name, username, Subscribers.objects.count()))
+    send_adv_message(chat_id, bot)
 
 
 def stop(bot, update):
