@@ -17,7 +17,6 @@ TIMEOUT = 1/25
 @task(executor=TaskExecutor.MULE, retry_count=0, at=datetime.timedelta(minutes=1))
 def send_adv_message(chat_id, bot):
     """Функция отправки новым пользователям рекламного сообщения"""
-    # time.sleep(60 * 2)  # Ждем две минуты после начала работы с ботом
     current_task = get_current_task()
     try:
         bot.send_chat_action(chat_id, action=ChatAction.TYPING)  # Отправка статуса о наборе сообщения
